@@ -1,17 +1,21 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function SignUpPage() {
+function SignUpPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -30,15 +34,27 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      await authClient.signUp.email({
+      const result = await authClient.signUp.email({
         email,
         password,
         name,
       });
 
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Failed to create account. Please try again.");
+      if (result.error) {
+        setError(
+          result.error.message || "Failed to create account. Please try again.",
+        );
+        return;
+      }
+
+      router.replace(redirectTo);
+      router.refresh();
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create account. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -153,14 +169,26 @@ export default function SignUpPage() {
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{" "}
-          <a
-            href="/login"
+          <Link
+            href={
+              redirectTo === "/dashboard"
+                ? "/login"
+                : `/login?redirectTo=${encodeURIComponent(redirectTo)}`
+            }
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+      <SignUpPageContent />
+    </Suspense>
   );
 }
