@@ -1,9 +1,12 @@
 "use client";
 
-import { Suspense, useState } from "react";
-import { authClient } from "@/lib/auth-client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
+
+import { AuthPageFallback } from "@/components/auth-page-fallback";
+import { authClient } from "@/lib/auth-client";
+import { getAlternateAuthHref, getAuthRedirectTarget } from "@/lib/auth-page";
 
 function SignUpPageContent() {
   const router = useRouter();
@@ -15,9 +18,9 @@ function SignUpPageContent() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const redirectTo = searchParams.get("redirectTo") || "/dashboard";
+  const redirectTo = getAuthRedirectTarget(searchParams.get("redirectTo"));
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -170,11 +173,7 @@ function SignUpPageContent() {
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{" "}
           <Link
-            href={
-              redirectTo === "/dashboard"
-                ? "/login"
-                : `/login?redirectTo=${encodeURIComponent(redirectTo)}`
-            }
+            href={getAlternateAuthHref("/login", redirectTo)}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
             Sign in
@@ -187,7 +186,7 @@ function SignUpPageContent() {
 
 export default function SignUpPage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-gray-50" />}>
+    <Suspense fallback={<AuthPageFallback />}>
       <SignUpPageContent />
     </Suspense>
   );
