@@ -263,6 +263,7 @@ async function seed() {
 			id: adminId,
 			name: "Admin",
 			email: "admin@system.com",
+			disabled: false,
 			role: "OWNER",
 			emailVerified: true,
 		});
