@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 
-export default function SignInPage() {
+import { AuthPageFallback } from "@/components/auth-page-fallback";
+import { authClient } from "@/lib/auth-client";
+import { getAlternateAuthHref, getAuthRedirectTarget } from "@/lib/auth-page";
+
+function SignInPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
@@ -13,22 +18,35 @@ export default function SignInPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const redirectTo = getAuthRedirectTarget(searchParams.get("redirectTo"));
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
 
     try {
-      await authClient.signIn.email({
+      const result = await authClient.signIn.email({
         email,
         password,
         rememberMe,
       });
 
-      router.push("/dashboard");
-    } catch (err: any) {
+      if (result.error) {
+        setError(
+          result.error.message ||
+            "Failed to sign in. Please check your credentials.",
+        );
+        return;
+      }
+
+      router.replace(redirectTo);
+      router.refresh();
+    } catch (err: unknown) {
       setError(
-        err.message || "Failed to sign in. Please check your credentials.",
+        err instanceof Error
+          ? err.message
+          : "Failed to sign in. Please check your credentials.",
       );
     } finally {
       setLoading(false);
@@ -238,15 +256,23 @@ export default function SignInPage() {
 
           <p className="text-center text-sm text-gray-600 mt-6">
             Don't have an account?{" "}
-            <a
-              href="/signup"
+            <Link
+              href={getAlternateAuthHref("/signup", redirectTo)}
               className="text-blue-600 hover:text-blue-700 font-medium"
             >
               Sign up
-            </a>
+            </Link>
           </p>
         </div>
       </div>
     </div>
+  );
+}
+
+export default function SignInPage() {
+  return (
+    <Suspense fallback={<AuthPageFallback />}>
+      <SignInPageContent />
+    </Suspense>
   );
 }

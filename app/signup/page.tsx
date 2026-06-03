@@ -1,11 +1,16 @@
 "use client";
 
-import { useState } from "react";
-import { authClient } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState, type FormEvent } from "react";
 
-export default function SignUpPage() {
+import { AuthPageFallback } from "@/components/auth-page-fallback";
+import { authClient } from "@/lib/auth-client";
+import { getAlternateAuthHref, getAuthRedirectTarget } from "@/lib/auth-page";
+
+function SignUpPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -13,7 +18,9 @@ export default function SignUpPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const redirectTo = getAuthRedirectTarget(searchParams.get("redirectTo"));
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
 
@@ -30,15 +37,27 @@ export default function SignUpPage() {
     setLoading(true);
 
     try {
-      await authClient.signUp.email({
+      const result = await authClient.signUp.email({
         email,
         password,
         name,
       });
 
-      router.push("/dashboard");
-    } catch (err: any) {
-      setError(err.message || "Failed to create account. Please try again.");
+      if (result.error) {
+        setError(
+          result.error.message || "Failed to create account. Please try again.",
+        );
+        return;
+      }
+
+      router.replace(redirectTo);
+      router.refresh();
+    } catch (err: unknown) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Failed to create account. Please try again.",
+      );
     } finally {
       setLoading(false);
     }
@@ -153,14 +172,22 @@ export default function SignUpPage() {
 
         <p className="text-center text-sm text-gray-600 mt-6">
           Already have an account?{" "}
-          <a
-            href="/login"
+          <Link
+            href={getAlternateAuthHref("/login", redirectTo)}
             className="text-blue-600 hover:text-blue-700 font-medium"
           >
             Sign in
-          </a>
+          </Link>
         </p>
       </div>
     </div>
+  );
+}
+
+export default function SignUpPage() {
+  return (
+    <Suspense fallback={<AuthPageFallback />}>
+      <SignUpPageContent />
+    </Suspense>
   );
 }
