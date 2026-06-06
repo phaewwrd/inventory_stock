@@ -15,7 +15,9 @@ export const user = pgTable("user", {
   image: text("image"),
   role: userRoleEnum("role")
     .notNull()
-    .default("STOCK_USER"),  createdAt: timestamp("created_at").defaultNow().notNull(),
+    .default("STOCK_USER"),
+  disabled: boolean("disabled").default(false).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => /* @__PURE__ */ new Date())
