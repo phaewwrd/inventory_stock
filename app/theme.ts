@@ -31,48 +31,49 @@ declare module "@mui/material/styles" {
 export const theme = createTheme({
   cssVariables: true,
   palette: {
-    mode: "light",
+    mode: "dark",
     primary: {
-      main: "#185FA5",
-      light: "#378ADD",
+      main: "#3B82F6",
+      light: "#60A5FA",
+      dark: "#2563EB",
       contrastText: "#FFFFFF",
     },
     success: {
-      main: "#639922",
+      main: "#22C55E",
       contrastText: "#FFFFFF",
     },
     warning: {
-      main: "#BA7517",
-      contrastText: "#FFFFFF",
+      main: "#F59E0B",
+      contrastText: "#0B0F14",
     },
     error: {
-      main: "#E24B4A",
+      main: "#EF4444",
       contrastText: "#FFFFFF",
     },
     info: {
-      main: "#185FA5",
+      main: "#3B82F6",
     },
     background: {
-      default: "#F6F7F9",
-      paper: "#FFFFFF",
+      default: "#1A1A1A",
+      paper: "#272727",
     },
     text: {
-      primary: "#121720",
-      secondary: "#59616F",
+      primary: "#E5E5E5",
+      secondary: "#A1A1A1",
     },
-    divider: "#E5E8ED",
+    divider: "#2E2E2E",
     semantic: {
-      primaryBg: "#E6F1FB",
-      successBg: "#EAF3DE",
-      successText: "#3B6D11",
-      warningBg: "#FAEEDA",
-      warningText: "#854F0B",
-      dangerBg: "#FCEBEB",
-      dangerText: "#A32D2D",
-      surface2: "#F5F6F8",
-      border: "#E5E8ED",
-      borderStrong: "#D4D8DF",
-      textTertiary: "#8A919E",
+      primaryBg: "rgba(59, 130, 246, 0.15)",
+      successBg: "rgba(34, 197, 94, 0.15)",
+      successText: "#4ADE80",
+      warningBg: "rgba(245, 158, 11, 0.15)",
+      warningText: "#FBBF24",
+      dangerBg: "rgba(239, 68, 68, 0.15)",
+      dangerText: "#F87171",
+      surface2: "#1F1F1F",
+      border: "#2E2E2E",
+      borderStrong: "#3A3A3A",
+      textTertiary: "#777777",
     },
     layout: {
       sidebarWidth: 260,
@@ -124,12 +125,19 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 12,
-          border: "1px solid #E5E8ED",
+          backgroundColor: "#272727",
+          border: "1px solid #2E2E2E",
+          backgroundImage: "none",
         },
       },
     },
     MuiPaper: {
       defaultProps: { elevation: 0 },
+      styleOverrides: {
+        root: {
+          backgroundImage: "none",
+        },
+      },
     },
     MuiChip: {
       styleOverrides: {
@@ -141,24 +149,25 @@ export const theme = createTheme({
       styleOverrides: {
         root: {
           borderRadius: 8,
-          backgroundColor: "#FFFFFF",
+          backgroundColor: "#1F1F1F",
         },
         notchedOutline: {
-          borderColor: "#D4D8DF",
+          borderColor: "#3A3A3A",
         },
       },
     },
     MuiInputLabel: {
       styleOverrides: {
-        root: { fontSize: 13, fontWeight: 500, color: "#59616F" },
+        root: { fontSize: 13, fontWeight: 500, color: "#A1A1A1" },
       },
     },
     MuiAppBar: {
       defaultProps: { elevation: 0, color: "inherit" },
       styleOverrides: {
         root: {
-          backgroundColor: "#FFFFFF",
-          borderBottom: "1px solid #E5E8ED",
+          backgroundColor: "#1A1A1A",
+          borderBottom: "1px solid #2E2E2E",
+          backgroundImage: "none",
         },
       },
     },
@@ -167,16 +176,16 @@ export const theme = createTheme({
         root: {
           borderRadius: 8,
           "&.Mui-selected": {
-            backgroundColor: "#E6F1FB",
-            color: "#185FA5",
-            "&:hover": { backgroundColor: "#E6F1FB" },
+            backgroundColor: "rgba(59, 130, 246, 0.15)",
+            color: "#60A5FA",
+            "&:hover": { backgroundColor: "rgba(59, 130, 246, 0.22)" },
           },
         },
       },
     },
     MuiTooltip: {
       styleOverrides: {
-        tooltip: { fontSize: 12, backgroundColor: "#121720" },
+        tooltip: { fontSize: 12, backgroundColor: "#0B0F14" },
       },
     },
   },
