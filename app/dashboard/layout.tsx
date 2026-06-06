@@ -1,4 +1,5 @@
 import { Sidebar } from "@/components/layout/sidebar";
+import { Navbar } from "@/components/layout/navbar";
 
 export default function DashboardLayout({
   children,
@@ -11,7 +12,10 @@ export default function DashboardLayout({
       style={{ background: "#1a1a1a", color: "#e5e5e5" }}
     >
       <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden">{children}</div>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <Navbar />
+        {children}
+      </div>
     </div>
   );
 }
