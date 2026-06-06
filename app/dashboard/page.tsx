@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-
 import { authClient } from "@/lib/auth-client";
+import { ROUTES } from "@/constants/routes";
 
 const recentTransactions = [
   {
@@ -59,37 +59,7 @@ const expiryWatch = [
   },
 ];
 
-const navSections = [
-  {
-    label: "MAIN",
-    items: [
-      { name: "Dashboard", active: true },
-      { name: "Products", active: false },
-    ],
-  },
-  {
-    label: "TRANSACTIONS",
-    items: [
-      { name: "Receive stock", active: false },
-      { name: "Cut stock", active: false },
-      { name: "Movement log", active: false },
-    ],
-  },
-  {
-    label: "MONITOR",
-    items: [
-      { name: "Expiry", active: false, badge: 25 },
-      { name: "Reports", active: false },
-    ],
-  },
-  {
-    label: "ADMIN",
-    items: [
-      { name: "Users", active: false },
-      { name: "Settings", active: false },
-    ],
-  },
-];
+
 
 const statCards = [
   {
@@ -151,8 +121,7 @@ export default function DashboardPage() {
         setSignOutError(result.error.message || "Failed to sign out.");
         return;
       }
-
-      router.replace("/login");
+      router.replace(ROUTES.LOGIN);
       router.refresh();
     } catch (error: unknown) {
       setSignOutError(
@@ -164,90 +133,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: "#1a1a1a", color: "#e5e5e5" }}
-    >
-      {/* Sidebar */}
-      <aside
-        className="flex flex-col shrink-0 overflow-y-auto"
-        style={{
-          width: 260,
-          background: "#222222",
-          borderRight: "1px solid #2e2e2e",
-        }}
-      >
-        {/* Logo */}
-        <div className="flex items-center gap-3 px-5 py-5">
-          <div
-            className="flex items-center justify-center rounded-xl text-white font-bold text-lg shrink-0"
-            style={{ width: 40, height: 40, background: "#2563eb" }}
-          >
-            S
-          </div>
-          <div>
-            <div className="font-semibold text-white text-base leading-tight">
-              StockMS
-            </div>
-            <div className="text-xs" style={{ color: "#888" }}>
-              Phase 1
-            </div>
-          </div>
-        </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-3 pb-6">
-          {navSections.map((section) => (
-            <div key={section.label} className="mt-5">
-              <div
-                className="px-2 mb-1 text-xs font-semibold tracking-widest"
-                style={{ color: "#555" }}
-              >
-                {section.label}
-              </div>
-              {section.items.map((item) => (
-                <button
-                  key={item.name}
-                  className="w-full flex items-center justify-between gap-3 px-3 py-2 rounded-lg text-sm mb-0.5 text-left"
-                  style={
-                    item.active
-                      ? {
-                          background: "#1d4ed8",
-                          color: "#fff",
-                          fontWeight: 500,
-                        }
-                      : { color: "#999" }
-                  }
-                >
-                  <div className="flex items-center gap-3">
-                    <span
-                      className="shrink-0 rounded"
-                      style={{
-                        width: 15,
-                        height: 15,
-                        border: `1.5px solid ${item.active ? "#93c5fd" : "#484848"}`,
-                        display: "inline-block",
-                      }}
-                    />
-                    {item.name}
-                  </div>
-                  {"badge" in item && item.badge != null && (
-                    <span
-                      className="text-xs font-bold rounded-full px-2 py-0.5"
-                      style={{ background: "#b45309", color: "#fff" }}
-                    >
-                      {item.badge}
-                    </span>
-                  )}
-                </button>
-              ))}
-            </div>
-          ))}
-        </nav>
-      </aside>
-
-      {/* Main area */}
-      <div className="flex flex-col flex-1 overflow-hidden">
+    <>
         {/* Top bar */}
         <header
           className="flex items-center gap-4 px-6 shrink-0"
@@ -511,7 +397,6 @@ export default function DashboardPage() {
             </div>
           </div>
         </main>
-      </div>
-    </div>
+    </>
   );
 }
