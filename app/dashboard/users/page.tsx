@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
@@ -8,6 +7,7 @@ import { UserStats } from "@/components/users/user-stats";
 import { UserTable } from "@/components/users/user-table";
 import { getUsersService } from "@/features/users/service";
 import type { SerializedUser } from "@/features/users/types";
+import { HeaderPage } from "@/components/header-page";
 
 // ─── Metadata ─────────────────────────────────────────────────────────────────
 
@@ -43,31 +43,7 @@ export default async function UsersPage() {
 
       {/* Scrollable content */}
       <main className="flex-1 overflow-y-auto px-8 py-7">
-        {/* Page heading */}
-        <div className="flex items-start justify-between mb-6">
-          <div>
-            <h1 className="text-2xl font-bold text-white">
-              User Management
-            </h1>
-            <p className="text-sm mt-0.5" style={{ color: "#666" }}>
-              จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ
-            </p>
-          </div>
-
-          {/* Quick back link */}
-          <Link
-            href={ROUTES.DASHBOARD.HOME}
-            className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium"
-            style={{
-              border: "1.5px solid #2e2e2e",
-              color: "#777",
-              background: "transparent",
-            }}
-          >
-            ← Dashboard
-          </Link>
-        </div>
-
+        <HeaderPage title="User Management" description="จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ" />
         {/* Stats cards */}
         <UserStats users={users} />
 
