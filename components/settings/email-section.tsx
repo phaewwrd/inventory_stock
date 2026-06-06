@@ -1,7 +1,7 @@
 import { authClient } from "@/lib/auth-client";
 import { Feedback, FeedbackState } from "./feedback";
-import { Field } from "./field";
-import { inputStyle } from "./input-style";
+import { Field } from "../field";
+import { inputStyle } from "../input-style";
 import { SectionCard } from "./section-card";
 import { useState, useTransition } from "react";
 import { SaveButton } from "./save-btn";

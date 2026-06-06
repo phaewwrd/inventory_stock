@@ -2,8 +2,8 @@ import { authClient } from "@/lib/auth-client";
 import { useState, useTransition } from "react";
 import { SectionCard } from "./section-card";
 import { Feedback, FeedbackState } from "./feedback";
-import { Field } from "./field";
-import { inputStyle } from "./input-style";
+import { Field } from "../field";
+import { inputStyle } from "../input-style";
 import { SaveButton } from "./save-btn";
 
 export function ProfileSection({ currentName }: { currentName: string }) {

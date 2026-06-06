@@ -12,6 +12,9 @@ import type {
   UpdateUserInput,
   UserRole,
 } from "@/features/users/types";
+import { Field } from "../field";
+import { inputStyle } from "../input-style";
+import { ROLES } from "@/constants/users";
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -22,44 +25,8 @@ interface UserModalProps {
   onSuccess: () => void;
 }
 
-const ROLES: { value: UserRole; label: string; desc: string }[] = [
-  { value: "OWNER", label: "Owner", desc: "Full system access" },
-  { value: "STOCK_MANAGER", label: "Stock Manager", desc: "Manage stock & reports" },
-  { value: "STOCK_USER", label: "Stock User", desc: "View & basic transactions" },
-];
 
-// ─── Input field ──────────────────────────────────────────────────────────────
 
-function Field({
-  id,
-  label,
-  children,
-}: {
-  id: string;
-  label: string;
-  children: React.ReactNode;
-}) {
-  return (
-    <div className="flex flex-col gap-1.5">
-      <label htmlFor={id} className="text-xs font-medium" style={{ color: "#888" }}>
-        {label}
-      </label>
-      {children}
-    </div>
-  );
-}
-
-const inputStyle: React.CSSProperties = {
-  background: "#1a1a1a",
-  border: "1px solid #333",
-  color: "#e5e5e5",
-  borderRadius: 10,
-  padding: "10px 14px",
-  fontSize: 14,
-  outline: "none",
-  width: "100%",
-  transition: "border-color 0.15s",
-};
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
@@ -73,6 +40,7 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 
   // Sync fields when user prop changes (edit mode)
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setName(user?.name ?? "");
     setEmail(user?.email ?? "");
     setRole(user?.role ?? "STOCK_USER");
