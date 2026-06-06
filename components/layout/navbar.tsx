@@ -31,7 +31,6 @@ export function Navbar() {
   }
 
   // Generate breadcrumb or title
-  const isRootDashboard = pathname === ROUTES.DASHBOARD.HOME;
   const segments = pathname.split("/").filter(Boolean);
   const pageName = segments[segments.length - 1] || "Dashboard";
   // Convert "users" to "Users", "receive-stock" to "Receive stock" etc.
@@ -62,28 +61,6 @@ export function Navbar() {
 
       {/* Right side: Actions & User */}
       <div className="flex items-center gap-3 ml-auto">
-        {[0, 1].map((i) => (
-          <button
-            key={i}
-            className="rounded-lg flex items-center justify-center"
-            style={{
-              width: 34,
-              height: 34,
-              background: "#2a2a2a",
-              border: "1px solid #333",
-            }}
-          >
-            <span
-              style={{
-                width: 13,
-                height: 13,
-                border: "1.5px solid #666",
-                display: "inline-block",
-                borderRadius: 3,
-              }}
-            />
-          </button>
-        ))}
 
         <div
           className="flex items-center gap-3 rounded-xl px-3 py-2"
