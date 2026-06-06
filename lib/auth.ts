@@ -13,5 +13,24 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: true,
   },
+  user: {
+    additionalFields: {
+      role: {
+        type: "string",
+        required: true,
+        defaultValue: "STOCK_USER",
+      },
+      disabled: {
+        type: "boolean",
+        required: true,
+        defaultValue: false,
+      },
+    },
+    changeEmail: {
+      enabled: true,
+      // Internal system — skip email verification on change
+      sendVerificationEmail: async () => {},
+    },
+  },
   plugins: [nextCookies()],
 });
