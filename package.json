@@ -23,6 +23,7 @@
 		"@mui/material": "^9.0.1",
 		"@mui/material-nextjs": "^9.0.1",
 		"@mui/x-charts": "^9.4.0",
+		"@mui/x-data-grid": "^9.4.0",
 		"@mui/x-date-pickers": "^9.4.0",
 		"better-auth": "^1.6.13",
 		"dayjs": "^1.11.21",

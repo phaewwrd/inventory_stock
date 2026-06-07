@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import Box from "@mui/material/Box";
+import Card from "@mui/material/Card";
+import CardContent from "@mui/material/CardContent";
+import Chip from "@mui/material/Chip";
+import Stack from "@mui/material/Stack";
+import Typography from "@mui/material/Typography";
 import { auth } from "@/lib/auth";
 import { ROUTES } from "@/constants/routes";
 import { UserStats } from "@/components/users/user-stats";
@@ -16,7 +22,6 @@ export const metadata: Metadata = {
   description:
     "จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ — create, edit, disable accounts and assign roles.",
 };
-
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
@@ -38,37 +43,43 @@ export default async function UsersPage() {
   }));
 
   return (
-    <>
+    <main className="flex-1 overflow-y-auto px-8 py-7">
+      <HeaderPage
+        title="User Management"
+        description="จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ"
+      />
 
-
-      {/* Scrollable content */}
-      <main className="flex-1 overflow-y-auto px-8 py-7">
-        <HeaderPage title="User Management" description="จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ" />
-        {/* Stats cards */}
+      <Stack spacing={3}>
         <UserStats users={users} />
 
-        {/* Table card */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-        >
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <span className="font-semibold text-white text-sm">
+        <Card>
+          <CardContent sx={{ p: 3 }}>
+            <Box
+              sx={{
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                gap: 2,
+                mb: 3,
+                flexWrap: "wrap",
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 600 }}>
                 All Users
-              </span>
-              <span
-                className="ml-2 text-xs rounded-full px-2 py-0.5 font-medium"
-                style={{ background: "#1a1a1a", color: "#555" }}
-              >
-                {users.length}
-              </span>
-            </div>
-          </div>
+              </Typography>
 
-          <UserTable initialUsers={users} />
-        </div>
-      </main>
-    </>
+              <Chip
+                label={users.length.toLocaleString()}
+                size="small"
+                color="default"
+                variant="outlined"
+              />
+            </Box>
+
+            <UserTable initialUsers={users} />
+          </CardContent>
+        </Card>
+      </Stack>
+    </main>
   );
 }

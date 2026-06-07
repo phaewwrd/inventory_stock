@@ -59,8 +59,6 @@ const expiryWatch = [
   },
 ];
 
-
-
 const statCards = [
   {
     bg: "#1d4ed8",
@@ -96,7 +94,6 @@ export default function DashboardPage() {
   const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
-
   const today = new Date();
   const dateStr = today.toLocaleDateString("en-US", {
     weekday: "long",
@@ -112,7 +109,7 @@ export default function DashboardPage() {
       {/* Page heading */}
       <div className="flex items-start justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold text-white">Overview</h1>
+          <h1 className="text-2xl font-bold">Overview</h1>
           <p className="text-sm mt-0.5" style={{ color: "#777" }}>
             {dateStr} · Warehouse A
           </p>
@@ -170,9 +167,7 @@ export default function DashboardPage() {
             >
               {card.value}
             </div>
-            <div className="text-sm text-white font-medium">
-              {card.label}
-            </div>
+            <div className="text-sm text-white font-medium">{card.label}</div>
             <div className="text-xs mt-1" style={{ color: "#666" }}>
               {card.sub}
             </div>
@@ -213,10 +208,7 @@ export default function DashboardPage() {
                   <div className="text-sm text-white font-medium truncate">
                     {tx.name}
                   </div>
-                  <div
-                    className="text-xs truncate"
-                    style={{ color: "#777" }}
-                  >
+                  <div className="text-xs truncate" style={{ color: "#777" }}>
                     {tx.detail}
                   </div>
                 </div>
@@ -254,10 +246,7 @@ export default function DashboardPage() {
                   <div className="text-sm text-white font-medium truncate">
                     {item.name}
                   </div>
-                  <div
-                    className="text-xs truncate"
-                    style={{ color: "#777" }}
-                  >
+                  <div className="text-xs truncate" style={{ color: "#777" }}>
                     {item.lot}
                   </div>
                 </div>
@@ -265,8 +254,7 @@ export default function DashboardPage() {
                   <div
                     className="text-xs font-semibold"
                     style={{
-                      color:
-                        item.status === "expired" ? "#ef4444" : "#f59e0b",
+                      color: item.status === "expired" ? "#ef4444" : "#f59e0b",
                     }}
                   >
                     {item.status === "expired" ? "Expired" : "Near expiry"}

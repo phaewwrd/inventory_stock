@@ -1,16 +1,9 @@
 "use client";
 
-import { useState } from "react";
-import {
-  Button,
-  ButtonGroup,
-  Card,
-  CardContent,
-  Stack,
-  TextField,
-} from "@mui/material";
+import dayjs, { type Dayjs } from "dayjs";
+import { Button, ButtonGroup, Card, CardContent, Stack } from "@mui/material";
 import { DatePicker, LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterDateFns } from "@mui/x-date-pickers/AdapterDateFns";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import type { DateRangePreset } from "@/features/reports/types";
 
 interface DateRangeFilterProps {
@@ -41,6 +34,9 @@ export function DateRangeFilter({
   onCustomDateChange,
   onApply,
 }: DateRangeFilterProps) {
+  const startDateValue = customStartDate ? dayjs(customStartDate) : null;
+  const endDateValue = customEndDate ? dayjs(customEndDate) : null;
+
   return (
     <Card>
       <CardContent>
@@ -62,21 +58,31 @@ export function DateRangeFilter({
           </ButtonGroup>
 
           {preset === "custom" && (
-            <LocalizationProvider dateAdapter={AdapterDateFns}>
+            <LocalizationProvider dateAdapter={AdapterDayjs}>
               <Stack direction={{ xs: "column", sm: "row" }} spacing={2}>
                 <DatePicker
                   label="Start Date"
-                  value={customStartDate}
-                  onChange={(date) => onCustomDateChange(date, customEndDate)}
+                  value={startDateValue}
+                  onChange={(date: Dayjs | null) =>
+                    onCustomDateChange(
+                      date ? date.toDate() : null,
+                      customEndDate,
+                    )
+                  }
                   slotProps={{
                     textField: { size: "small", fullWidth: true },
                   }}
                 />
                 <DatePicker
                   label="End Date"
-                  value={customEndDate}
-                  onChange={(date) => onCustomDateChange(customStartDate, date)}
-                  minDate={customStartDate || undefined}
+                  value={endDateValue}
+                  onChange={(date: Dayjs | null) =>
+                    onCustomDateChange(
+                      customStartDate,
+                      date ? date.toDate() : null,
+                    )
+                  }
+                  minDate={startDateValue ?? undefined}
                   slotProps={{
                     textField: { size: "small", fullWidth: true },
                   }}

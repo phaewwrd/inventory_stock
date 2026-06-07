@@ -19,6 +19,7 @@
       }
     ],
     "paths": {
+      "dayjs": ["./node_modules/dayjs/index.d.ts"],
       "@/*": ["./*"]
     }
   },

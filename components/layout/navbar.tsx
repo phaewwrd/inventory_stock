@@ -3,24 +3,41 @@
 import { useState } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
+
+import {
+  AppBar,
+  Toolbar,
+  Box,
+  Typography,
+  Avatar,
+  Button,
+  Breadcrumbs,
+} from "@mui/material";
+
+import NavigateNextIcon from "@mui/icons-material/NavigateNext";
+
 import { authClient } from "@/lib/auth-client";
 import { ROUTES } from "@/constants/routes";
 
 export function Navbar() {
   const router = useRouter();
   const pathname = usePathname();
+
   const { data: session, isPending } = authClient.useSession();
 
   const [isSigningOut, setIsSigningOut] = useState(false);
 
-  const userName = session?.user?.name || "Warehouse user";
-  const userEmail = session?.user?.email || "Signed in";
+  const userName = session?.user?.name || "Warehouse User";
+  const userEmail = session?.user?.email || "Signed In";
+
   const userInitial = userName.charAt(0).toUpperCase();
 
   async function handleSignOut() {
     setIsSigningOut(true);
+
     try {
       await authClient.signOut();
+
       router.replace(ROUTES.LOGIN);
       router.refresh();
     } catch (error) {
@@ -30,67 +47,119 @@ export function Navbar() {
     }
   }
 
-  // Generate breadcrumb or title
   const segments = pathname.split("/").filter(Boolean);
-  const pageName = segments[segments.length - 1] || "Dashboard";
-  // Convert "users" to "Users", "receive-stock" to "Receive stock" etc.
+
+  const pageName = segments[segments.length - 1] || "dashboard";
+
   const formattedPageName = pageName
     .split("-")
-    .map((word, i) => (i === 0 ? word.charAt(0).toUpperCase() + word.slice(1) : word))
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
     .join(" ");
 
   return (
-    <header
-      className="flex items-center gap-4 px-6 shrink-0"
-      style={{
-        height: 56,
-        borderBottom: "1px solid #2e2e2e",
-        background: "#1a1a1a",
+    <AppBar
+      position="static"
+      elevation={0}
+      color="inherit"
+      sx={{
+        bgcolor: "background.paper",
+        borderBottom: 1,
+        borderColor: "divider",
       }}
     >
-      {/* Left side: Navigation context */}
+      <Toolbar
+        sx={{
+          minHeight: 64,
+          px: 3,
+          display: "flex",
+          justifyContent: "space-between",
+        }}
+      >
+        {/* Left */}
+        <Box>
+          <Breadcrumbs
+            separator={<NavigateNextIcon fontSize="small" />}
+            sx={{
+              color: "text.secondary",
+            }}
+          >
+            <Link
+              href={ROUTES.DASHBOARD.HOME}
+              style={{
+                textDecoration: "none",
+                color: "inherit",
+              }}
+            >
+              Inventory Management
+            </Link>
 
-      <div className="flex items-center gap-2 text-sm flex-1">
-        <Link href={ROUTES.DASHBOARD.HOME} style={{ color: "#555" }}>
-          Inventory Management System
-        </Link>
-        <span style={{ color: "#333" }}>›</span>
-        <span className="font-medium text-white">{formattedPageName}</span>
-      </div>
+            <Typography
+              variant="body2"
+              sx={{
+                color: "text.primary",
+                fontWeight: 600,
+              }}
+            >
+              {formattedPageName}
+            </Typography>
+          </Breadcrumbs>
 
+          <Typography
+            variant="h6"
+            sx={{
+              mt: 0.5,
+              fontWeight: 700,
+            }}
+          >
+            {formattedPageName}
+          </Typography>
+        </Box>
 
-      {/* Right side: Actions & User */}
-      <div className="flex items-center gap-3 ml-auto">
-
-        <div
-          className="flex items-center gap-3 rounded-xl px-3 py-2"
-          style={{ background: "#222222", border: "1px solid #333" }}
+        {/* Right */}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            p: 1,
+            pl: 2,
+            border: 1,
+            borderColor: "divider",
+            borderRadius: 3,
+            bgcolor: "background.default",
+          }}
         >
-          <div
-            className="flex h-9 w-9 items-center justify-center rounded-full text-sm font-semibold text-white"
-            style={{ background: "#1d4ed8" }}
+          <Avatar
+            sx={{
+              bgcolor: "primary.main",
+              width: 40,
+              height: 40,
+            }}
           >
             {isPending ? "..." : userInitial}
-          </div>
-          <div className="min-w-0">
-            <div className="truncate text-sm font-medium text-white">
-              {isPending ? "Loading session..." : userName}
-            </div>
-            <div className="truncate text-xs" style={{ color: "#888" }}>
-              {isPending ? "Fetching account" : userEmail}
-            </div>
-          </div>
-          <button
-            type="button"
+          </Avatar>
+
+          <Box>
+            <Typography variant="body2" sx={{ fontWeight: 600 }}>
+              {isPending ? "Loading..." : userName}
+            </Typography>
+
+            <Typography variant="caption" color="text.secondary">
+              {isPending ? "Fetching account..." : userEmail}
+            </Typography>
+          </Box>
+
+          <Button
+            size="small"
+            variant="outlined"
+            color="inherit"
             onClick={handleSignOut}
             disabled={isPending || isSigningOut}
-            className="rounded-lg px-3 py-1.5 text-xs font-medium text-white disabled:cursor-not-allowed disabled:opacity-60"
-            style={{ background: "#374151" }}
           >
             {isSigningOut ? "Signing out..." : "Sign out"}
-          </button>
-        </div>
-      </div>
-    </header>
+          </Button>
+        </Box>
+      </Toolbar>
+    </AppBar>
   );
 }

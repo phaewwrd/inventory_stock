@@ -1,14 +1,4 @@
-import {
-	endOfMonth,
-	endOfToday,
-	endOfYear,
-	format,
-	startOfMonth,
-	startOfToday,
-	startOfYear,
-	subDays,
-	subMonths,
-} from "date-fns";
+import dayjs from "dayjs";
 import type {
 	CategoryData,
 	DateRange,
@@ -39,44 +29,42 @@ import {
 // ─── Date Range Helpers ──────────────────────────────────────────────────────
 
 export function getDateRangeFromPreset(preset: DateRangePreset): DateRange {
-	const today = new Date();
+	const today = dayjs();
 	let startDate: Date;
 	let endDate: Date;
 
 	switch (preset) {
 		case "today":
-			startDate = startOfToday();
-			endDate = endOfToday();
+			startDate = today.startOf("day").toDate();
+			endDate = today.endOf("day").toDate();
 			break;
 		case "yesterday":
-			startDate = startOfToday();
-			startDate.setDate(startDate.getDate() - 1);
-			endDate = new Date(startDate);
-			endDate.setHours(23, 59, 59, 999);
+			startDate = today.subtract(1, "day").startOf("day").toDate();
+			endDate = today.subtract(1, "day").endOf("day").toDate();
 			break;
 		case "last7days":
-			startDate = subDays(startOfToday(), 6);
-			endDate = endOfToday();
+			startDate = today.subtract(6, "day").startOf("day").toDate();
+			endDate = today.endOf("day").toDate();
 			break;
 		case "last30days":
-			startDate = subDays(startOfToday(), 29);
-			endDate = endOfToday();
+			startDate = today.subtract(29, "day").startOf("day").toDate();
+			endDate = today.endOf("day").toDate();
 			break;
 		case "thisMonth":
-			startDate = startOfMonth(today);
-			endDate = endOfMonth(today);
+			startDate = today.startOf("month").toDate();
+			endDate = today.endOf("month").toDate();
 			break;
 		case "lastMonth":
-			startDate = startOfMonth(subMonths(today, 1));
-			endDate = endOfMonth(subMonths(today, 1));
+			startDate = today.subtract(1, "month").startOf("month").toDate();
+			endDate = today.subtract(1, "month").endOf("month").toDate();
 			break;
 		case "thisYear":
-			startDate = startOfYear(today);
-			endDate = endOfYear(today);
+			startDate = today.startOf("year").toDate();
+			endDate = today.endOf("year").toDate();
 			break;
 		default:
-			startDate = subDays(startOfToday(), 29);
-			endDate = endOfToday();
+			startDate = today.subtract(29, "day").startOf("day").toDate();
+			endDate = today.endOf("day").toDate();
 	}
 
 	return { startDate, endDate, preset };

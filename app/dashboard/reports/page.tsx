@@ -1,16 +1,8 @@
 "use client";
 
 import { useEffect } from "react";
-import {
-  Alert,
-  Box,
-  CircularProgress,
-  Stack,
-  Tab,
-  Tabs,
-  Typography,
-} from "@mui/material";
-import { format } from "date-fns";
+import dayjs from "dayjs";
+import { Alert, Box, CircularProgress, Stack, Tab, Tabs } from "@mui/material";
 import { useShallow } from "zustand/react/shallow";
 import type {
   DateRangePreset,
@@ -40,6 +32,11 @@ import {
   exportStockIssuedReportToExcel,
   exportStockReceivedReportToExcel,
 } from "@/lib/excel-export";
+import { HeaderPage } from "@/components/header-page";
+
+function formatDate(value: Date | string, pattern: string) {
+  return dayjs(value).format(pattern);
+}
 
 export default function ReportsPage() {
   const {
@@ -97,10 +94,12 @@ export default function ReportsPage() {
   }, [initializeReports]);
 
   return (
-    <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3, fontWeight: 600 }}>
-        Reports & Analytics
-      </Typography>
+    <main className="flex-1 overflow-y-auto px-8 py-7">
+      <HeaderPage
+        title="Reports & Analytics"
+        description="Track products, expiry, stock received, and stock issued trends"
+        showDashboardBtn={false}
+      />
 
       {error && (
         <Alert severity="error" sx={{ mb: 2 }}>
@@ -164,7 +163,7 @@ export default function ReportsPage() {
           onApply={loadIssuedReport}
         />
       )}
-    </Box>
+    </main>
   );
 }
 
@@ -302,7 +301,7 @@ function ExpiryReportTab({ report }: ExpiryReportTabProps) {
     {
       id: "expiryDate",
       label: "Expiry Date",
-      format: (val) => format(new Date(String(val)), "MMM dd, yyyy"),
+      format: (val) => formatDate(String(val), "MMM DD, YYYY"),
     },
     {
       id: "daysUntilExpiry",
@@ -402,7 +401,7 @@ function StockReceivedReportTab({
     {
       id: "date",
       label: "Date",
-      format: (val) => format(new Date(String(val)), "MMM dd, yyyy HH:mm"),
+      format: (val) => formatDate(String(val), "MMM DD, YYYY HH:mm"),
     },
     { id: "productName", label: "Product" },
     { id: "sku", label: "SKU" },
@@ -515,7 +514,7 @@ function StockIssuedReportTab({
     {
       id: "date",
       label: "Date",
-      format: (val) => format(new Date(String(val)), "MMM dd, yyyy HH:mm"),
+      format: (val) => formatDate(String(val), "MMM DD, YYYY HH:mm"),
     },
     { id: "productName", label: "Product" },
     { id: "sku", label: "SKU" },

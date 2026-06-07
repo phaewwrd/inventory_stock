@@ -1,5 +1,5 @@
 import ExcelJS from "exceljs";
-import { format } from "date-fns";
+import dayjs from "dayjs";
 import type {
 	SerializedExpiryReport,
 	SerializedProductReport,
@@ -50,6 +50,10 @@ async function downloadWorkbook(
 	URL.revokeObjectURL(url);
 }
 
+function formatDate(value: Date | string, pattern: string) {
+	return dayjs(value).format(pattern);
+}
+
 // ─── Product Report Export ───────────────────────────────────────────────────
 
 export async function exportProductReportToExcel(
@@ -70,7 +74,7 @@ export async function exportProductReportToExcel(
 	// Add date range
 	worksheet.mergeCells("A2:K2");
 	const dateCell = worksheet.getCell("A2");
-	dateCell.value = `Period: ${format(new Date(dateRange.startDate), "MMM dd, yyyy")} - ${format(new Date(dateRange.endDate), "MMM dd, yyyy")}`;
+	dateCell.value = `Period: ${formatDate(dateRange.startDate, "MMM DD, YYYY")} - ${formatDate(dateRange.endDate, "MMM DD, YYYY")}`;
 	dateCell.alignment = { horizontal: "center" };
 	dateCell.font = { italic: true };
 
@@ -105,7 +109,7 @@ export async function exportProductReportToExcel(
 			item.totalValue,
 			item.unit,
 			item.lastMovement
-				? format(new Date(item.lastMovement), "MMM dd, yyyy HH:mm")
+				? formatDate(item.lastMovement, "MMM DD, YYYY HH:mm")
 				: "N/A",
 		]);
 	}
@@ -122,7 +126,7 @@ export async function exportProductReportToExcel(
 
 	await downloadWorkbook(
 		workbook,
-		`Product_Report_${format(new Date(), "yyyyMMdd_HHmmss")}.xlsx`,
+		`Product_Report_${formatDate(new Date(), "YYYYMMDD_HHmmss")}.xlsx`,
 	);
 }
 
@@ -145,7 +149,7 @@ export async function exportExpiryReportToExcel(
 	// Add generated date
 	worksheet.mergeCells("A2:J2");
 	const dateCell = worksheet.getCell("A2");
-	dateCell.value = `Generated: ${format(new Date(), "MMM dd, yyyy HH:mm")}`;
+	dateCell.value = `Generated: ${formatDate(new Date(), "MMM DD, YYYY HH:mm")}`;
 	dateCell.alignment = { horizontal: "center" };
 	dateCell.font = { italic: true };
 
@@ -172,7 +176,7 @@ export async function exportExpiryReportToExcel(
 			item.productName,
 			item.sku,
 			item.category,
-			format(new Date(item.expiryDate), "MMM dd, yyyy"),
+			formatDate(item.expiryDate, "MMM DD, YYYY"),
 			item.daysUntilExpiry,
 			item.status.toUpperCase(),
 			item.remainingQty,
@@ -218,7 +222,7 @@ export async function exportExpiryReportToExcel(
 
 	await downloadWorkbook(
 		workbook,
-		`Expiry_Report_${format(new Date(), "yyyyMMdd_HHmmss")}.xlsx`,
+		`Expiry_Report_${formatDate(new Date(), "YYYYMMDD_HHmmss")}.xlsx`,
 	);
 }
 
@@ -242,7 +246,7 @@ export async function exportStockReceivedReportToExcel(
 	// Add date range
 	worksheet.mergeCells("A2:J2");
 	const dateCell = worksheet.getCell("A2");
-	dateCell.value = `Period: ${format(new Date(dateRange.startDate), "MMM dd, yyyy")} - ${format(new Date(dateRange.endDate), "MMM dd, yyyy")}`;
+	dateCell.value = `Period: ${formatDate(dateRange.startDate, "MMM DD, YYYY")} - ${formatDate(dateRange.endDate, "MMM DD, YYYY")}`;
 	dateCell.alignment = { horizontal: "center" };
 	dateCell.font = { italic: true };
 
@@ -265,7 +269,7 @@ export async function exportStockReceivedReportToExcel(
 	// Add data
 	for (const item of data) {
 		worksheet.addRow([
-			format(new Date(item.date), "MMM dd, yyyy HH:mm"),
+			formatDate(item.date, "MMM DD, YYYY HH:mm"),
 			item.productName,
 			item.sku,
 			item.lotNo,
@@ -273,7 +277,7 @@ export async function exportStockReceivedReportToExcel(
 			item.unitCost,
 			item.totalCost,
 			item.expiryDate
-				? format(new Date(item.expiryDate), "MMM dd, yyyy")
+				? formatDate(item.expiryDate, "MMM DD, YYYY")
 				: "N/A",
 			item.unit,
 			item.createdByName || "System",
@@ -289,7 +293,7 @@ export async function exportStockReceivedReportToExcel(
 
 	await downloadWorkbook(
 		workbook,
-		`Stock_Received_${format(new Date(), "yyyyMMdd_HHmmss")}.xlsx`,
+		`Stock_Received_${formatDate(new Date(), "YYYYMMDD_HHmmss")}.xlsx`,
 	);
 }
 
@@ -313,7 +317,7 @@ export async function exportStockIssuedReportToExcel(
 	// Add date range
 	worksheet.mergeCells("A2:J2");
 	const dateCell = worksheet.getCell("A2");
-	dateCell.value = `Period: ${format(new Date(dateRange.startDate), "MMM dd, yyyy")} - ${format(new Date(dateRange.endDate), "MMM dd, yyyy")}`;
+	dateCell.value = `Period: ${formatDate(dateRange.startDate, "MMM DD, YYYY")} - ${formatDate(dateRange.endDate, "MMM DD, YYYY")}`;
 	dateCell.alignment = { horizontal: "center" };
 	dateCell.font = { italic: true };
 
@@ -335,7 +339,7 @@ export async function exportStockIssuedReportToExcel(
 	// Add data
 	for (const item of data) {
 		worksheet.addRow([
-			format(new Date(item.date), "MMM dd, yyyy HH:mm"),
+			formatDate(item.date, "MMM DD, YYYY HH:mm"),
 			item.productName,
 			item.sku,
 			item.lotNo || "N/A",
@@ -355,6 +359,6 @@ export async function exportStockIssuedReportToExcel(
 
 	await downloadWorkbook(
 		workbook,
-		`Stock_Issued_${format(new Date(), "yyyyMMdd_HHmmss")}.xlsx`,
+		`Stock_Issued_${formatDate(new Date(), "YYYYMMDD_HHmmss")}.xlsx`,
 	);
 }

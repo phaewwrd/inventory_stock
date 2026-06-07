@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/sidebar";
 import { Navbar } from "@/components/layout/navbar";
+import Stack from "@mui/material/Stack";
 
 export default function DashboardLayout({
   children,
@@ -7,15 +8,20 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: "#1a1a1a", color: "#e5e5e5" }}
+    <Stack
+      direction="row"
+      sx={{
+        height: "100vh",
+        overflow: "hidden",
+        backgroundColor: "background.default",
+      }}
     >
       <Sidebar />
+
       <div className="flex flex-col flex-1 overflow-hidden">
         <Navbar />
         {children}
       </div>
-    </div>
+    </Stack>
   );
 }
