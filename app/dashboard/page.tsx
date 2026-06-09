@@ -1,9 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { authClient } from "@/lib/auth-client";
-import { ROUTES } from "@/constants/routes";
+import { Box, Card, Typography, Button } from "@mui/material";
 
 const recentTransactions = [
   {
@@ -90,8 +88,15 @@ const statCards = [
   },
 ];
 
+const panelSx = {
+  p: 3,
+  borderRadius: 4,
+  bgcolor: "#fff",
+  border: "1px solid #e5e7eb",
+  boxShadow: "none",
+};
+
 export default function DashboardPage() {
-  const router = useRouter();
   const { data: session, isPending } = authClient.useSession();
 
   const today = new Date();
@@ -140,134 +145,275 @@ export default function DashboardPage() {
       </div>
 
       {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(2, 1fr)",
+            lg: "repeat(4, 1fr)",
+          },
+          gap: 2,
+          mb: 3,
+        }}
+      >
         {statCards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-2xl p-5"
-            style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-          >
-            <div
-              className="rounded-xl flex items-center justify-center mb-4"
-              style={{ width: 42, height: 42, background: card.bg }}
+          <Card key={card.label} sx={panelSx}>
+            <Box
+              sx={{
+                width: 42,
+                height: 42,
+                borderRadius: 2,
+                bgcolor: card.bg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
+              }}
             >
-              <span
-                style={{
+              <Box
+                sx={{
                   width: 16,
                   height: 16,
-                  border: "2px solid rgba(255,255,255,0.55)",
-                  display: "inline-block",
-                  borderRadius: 3,
+                  border: "2px solid rgba(0,0,0,.15)",
+                  borderRadius: 1,
                 }}
               />
-            </div>
-            <div
-              className="text-3xl font-bold mb-1"
-              style={{ color: card.valueColor }}
+            </Box>
+
+            <Typography
+              variant="h4"
+              sx={{
+                fontWeight: 700,
+                color: card.valueColor,
+                mb: 0.5,
+              }}
             >
               {card.value}
-            </div>
-            <div className="text-sm text-white font-medium">{card.label}</div>
-            <div className="text-xs mt-1" style={{ color: "#666" }}>
+            </Typography>
+
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 600,
+                color: "#111827",
+              }}
+            >
+              {card.label}
+            </Typography>
+
+            <Typography
+              variant="caption"
+              sx={{
+                color: "#6b7280",
+              }}
+            >
               {card.sub}
-            </div>
-          </div>
+            </Typography>
+          </Card>
         ))}
-      </div>
+      </Box>
 
       {/* Bottom panels */}
-      <div className="grid grid-cols-2 gap-4">
+      <Box
+        sx={{
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            md: "1fr 1fr",
+          },
+          gap: 2,
+        }}
+      >
         {/* Recent transactions */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-white text-sm">
+        <Card sx={panelSx}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+                color: "#111827",
+              }}
+            >
               Recent transactions
-            </span>
-            <button className="text-xs" style={{ color: "#3b82f6" }}>
-              View all
-            </button>
-          </div>
-          <div className="flex flex-col gap-3">
+            </Typography>
+
+            <Button size="small">View all</Button>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
             {recentTransactions.map((tx) => (
-              <div
+              <Box
                 key={tx.name + tx.detail}
-                className="flex items-center gap-3"
+                sx={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 1.5,
+                }}
               >
-                <span
-                  className="rounded-full shrink-0"
-                  style={{
+                <Box
+                  sx={{
                     width: 8,
                     height: 8,
-                    background: tx.positive ? "#22c55e" : "#3b82f6",
+                    borderRadius: "50%",
+                    bgcolor: tx.positive ? "#22c55e" : "#3b82f6",
+                    flexShrink: 0,
                   }}
                 />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white font-medium truncate">
+
+                <Box
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 500,
+                      color: "#111827",
+                    }}
+                    noWrap
+                  >
                     {tx.name}
-                  </div>
-                  <div className="text-xs truncate" style={{ color: "#777" }}>
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "#6b7280",
+                    }}
+                    noWrap
+                  >
                     {tx.detail}
-                  </div>
-                </div>
-                <div
-                  className="text-sm font-medium shrink-0"
-                  style={{ color: tx.positive ? "#22c55e" : "#f87171" }}
+                  </Typography>
+                </Box>
+
+                <Typography
+                  variant="body2"
+                  sx={{
+                    fontWeight: 600,
+                    color: tx.positive ? "#16a34a" : "#dc2626",
+                  }}
                 >
                   {tx.qty}
-                </div>
-              </div>
+                </Typography>
+              </Box>
             ))}
-          </div>
-        </div>
+          </Box>
+        </Card>
 
         {/* Expiry watch */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-white text-sm">
+        <Card sx={panelSx}>
+          <Box
+            sx={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              mb: 2,
+            }}
+          >
+            <Typography
+              variant="subtitle2"
+              sx={{
+                fontWeight: 600,
+                color: "#111827",
+              }}
+            >
               Expiry watch
-            </span>
-            <button className="text-xs" style={{ color: "#3b82f6" }}>
-              View all
-            </button>
-          </div>
-          <div className="flex flex-col gap-3">
+            </Typography>
+
+            <Button size="small">View all</Button>
+          </Box>
+
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
+            }}
+          >
             {expiryWatch.map((item) => (
-              <div
+              <Box
                 key={item.name + item.lot}
-                className="flex items-center gap-3"
+                sx={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  gap: 2,
+                }}
               >
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white font-medium truncate">
+                <Box
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                  }}
+                >
+                  <Typography
+                    variant="body2"
+                    sx={{
+                      fontWeight: 500,
+                      color: "#111827",
+                    }}
+                    noWrap
+                  >
                     {item.name}
-                  </div>
-                  <div className="text-xs truncate" style={{ color: "#777" }}>
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      color: "#6b7280",
+                    }}
+                    noWrap
+                  >
                     {item.lot}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div
-                    className="text-xs font-semibold"
-                    style={{
-                      color: item.status === "expired" ? "#ef4444" : "#f59e0b",
+                  </Typography>
+                </Box>
+
+                <Box
+                  sx={{
+                    textAlign: "right",
+                  }}
+                >
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontWeight: 600,
+                      color: item.status === "expired" ? "#dc2626" : "#d97706",
                     }}
                   >
                     {item.status === "expired" ? "Expired" : "Near expiry"}
-                  </div>
-                  <div className="text-xs" style={{ color: "#555" }}>
+                  </Typography>
+
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      display: "block",
+                      color: "#6b7280",
+                    }}
+                  >
                     {item.expiry}
-                  </div>
-                </div>
-              </div>
+                  </Typography>
+                </Box>
+              </Box>
             ))}
-          </div>
-        </div>
-      </div>
+          </Box>
+        </Card>
+      </Box>
     </div>
   );
 }

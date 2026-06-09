@@ -1,4 +1,6 @@
 import type { SerializedUser } from "@/features/users/types";
+import { Box, Card, Typography } from "@mui/material";
+import Grid from "@mui/material/Grid";
 
 interface UserStatsProps {
   users: SerializedUser[];
@@ -51,39 +53,52 @@ export function UserStats({ users }: UserStatsProps) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-4 mb-5">
+    <Grid container spacing={2}>
       {cards.map((card) => (
-        <div
-          key={card.label}
-          className="rounded-2xl p-5"
-          style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-        >
-          <div
-            className="rounded-xl flex items-center justify-center mb-4"
-            style={{ width: 42, height: 42, background: card.bg }}
+        <Grid size={{ xs: 12, sm: 6, md: 3 }} key={card.label}>
+          <Card
+            sx={{
+              p: 2.5,
+              borderRadius: 3,
+              backgroundColor: "background.paper",
+            }}
           >
-            <span
-              style={{
-                width: 16,
-                height: 16,
-                border: "2px solid rgba(255,255,255,0.55)",
-                display: "inline-block",
-                borderRadius: 3,
+            <Box
+              sx={{
+                width: 42,
+                height: 42,
+                borderRadius: 2,
+                backgroundColor: card.bg,
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                mb: 2,
               }}
-            />
-          </div>
-          <div
-            className="text-3xl font-bold mb-1"
-            style={{ color: card.valueColor }}
-          >
-            {card.value}
-          </div>
-          <div className="text-sm text-white font-medium">{card.label}</div>
-          <div className="text-xs mt-1" style={{ color: "#666" }}>
-            {card.sub}
-          </div>
-        </div>
+            >
+              <Box
+                sx={{
+                  width: 16,
+                  height: 16,
+                  border: "2px solid rgba(255,255,255,0.55)",
+                  borderRadius: 0.5,
+                }}
+              />
+            </Box>
+
+            <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>
+              {card.value}
+            </Typography>
+
+            <Typography variant="subtitle2" sx={{ fontWeight: 600 }}>
+              {card.label}
+            </Typography>
+
+            <Typography variant="caption" sx={{ color: "#888" }}>
+              {card.sub}
+            </Typography>
+          </Card>
+        </Grid>
       ))}
-    </div>
+    </Grid>
   );
 }

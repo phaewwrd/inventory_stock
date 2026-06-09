@@ -108,27 +108,35 @@ export function UserTable({ initialUsers }: UserTableProps) {
     {
       field: "name",
       headerName: "User",
-      flex: 1.6,
+      flex: 1.8,
 
       renderCell: (params) => (
-        <Stack
-          direction="row"
-          spacing={1.5}
-          sx={{ height: "100%", alignItems: "center" }}
+        <Box
+          sx={{
+            display: "flex",
+            alignItems: "center",
+            gap: 1.5,
+            height: "100%",
+            width: "100%",
+          }}
         >
           <Avatar
             sx={{
+              width: 36,
+              height: 36,
+              fontSize: 14,
               bgcolor: params.row.disabled ? "grey.400" : "primary.main",
             }}
           >
-            {params.row.name[0]}
+            {params.row.name.charAt(0).toUpperCase()}
           </Avatar>
 
-          <Box>
+          <Box sx={{ display: "flex", flexDirection: "column" }}>
             <Typography
               variant="body2"
               sx={{
                 fontWeight: 600,
+                lineHeight: 1.2,
               }}
             >
               {params.row.name}
@@ -138,7 +146,7 @@ export function UserTable({ initialUsers }: UserTableProps) {
               {params.row.id.slice(0, 8)}
             </Typography>
           </Box>
-        </Stack>
+        </Box>
       ),
     },
 
@@ -300,6 +308,7 @@ export function UserTable({ initialUsers }: UserTableProps) {
           columns={columns}
           disableRowSelectionOnClick
           pageSizeOptions={[10, 25, 50]}
+          rowHeight={72}
           initialState={{
             pagination: {
               paginationModel: {
