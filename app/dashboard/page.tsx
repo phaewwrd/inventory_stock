@@ -1,7 +1,17 @@
 "use client";
 
 import { authClient } from "@/lib/auth-client";
-import { Box, Card, Typography, Button } from "@mui/material";
+
+import { Box, Card, Typography, Button, Chip } from "@mui/material";
+
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
+import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
+import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
+import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
 
 const recentTransactions = [
   {
@@ -59,31 +69,35 @@ const expiryWatch = [
 
 const statCards = [
   {
-    bg: "#1d4ed8",
+    icon: <Inventory2OutlinedIcon />,
+    bg: "#2563eb",
     value: "1,248",
-    valueColor: "#ffffff",
-    label: "Total products",
+    valueColor: "#2563eb",
+    label: "Total Products",
     sub: "+12 added this week",
   },
   {
-    bg: "#b45309",
+    icon: <WarningAmberOutlinedIcon />,
+    bg: "#f59e0b",
     value: "34",
     valueColor: "#f59e0b",
-    label: "Low stock alerts",
+    label: "Low Stock Alerts",
     sub: "Below reorder level",
   },
   {
-    bg: "#92400e",
+    icon: <ScheduleOutlinedIcon />,
+    bg: "#ea580c",
     value: "18",
-    valueColor: "#f59e0b",
-    label: "Near expiry",
+    valueColor: "#ea580c",
+    label: "Near Expiry",
     sub: "Within 30 days",
   },
   {
-    bg: "#7f1d1d",
+    icon: <ErrorOutlineOutlinedIcon />,
+    bg: "#dc2626",
     value: "7",
-    valueColor: "#ef4444",
-    label: "Expired products",
+    valueColor: "#dc2626",
+    label: "Expired Products",
     sub: "Requires action",
   },
 ];
@@ -91,8 +105,9 @@ const statCards = [
 const panelSx = {
   p: 3,
   borderRadius: 4,
-  bgcolor: "#fff",
-  border: "1px solid #e5e7eb",
+  bgcolor: "background.paper",
+  border: "1px solid",
+  borderColor: "divider",
   boxShadow: "none",
 };
 
@@ -100,6 +115,7 @@ export default function DashboardPage() {
   const { data: session, isPending } = authClient.useSession();
 
   const today = new Date();
+
   const dateStr = today.toLocaleDateString("en-US", {
     weekday: "long",
     day: "numeric",
@@ -107,78 +123,97 @@ export default function DashboardPage() {
     year: "numeric",
   });
 
-  const userName = session?.user.name || "Warehouse user";
+  const userName = session?.user.name || "Warehouse User";
 
   return (
-    <div className="flex flex-col gap-4 m-10">
-      {/* Page heading */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold">Overview</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#777" }}>
-            {dateStr} · Warehouse A
-          </p>
+    <Box sx={{ p: 4 }}>
+      {/* Header */}
+      <Box
+        sx={{
+          mb: 4,
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "flex-start",
+          flexWrap: "wrap",
+          gap: 2,
+        }}
+      >
+        <Box>
+          <Typography variant="h4" fontWeight={700}>
+            Overview
+          </Typography>
+
+          <Typography variant="body2" color="text.secondary">
+            {dateStr} • Warehouse A
+          </Typography>
+
           {!isPending && (
-            <p className="mt-1 text-xs" style={{ color: "#888" }}>
+            <Typography variant="body2" color="text.secondary">
               Signed in as {userName}
-            </p>
+            </Typography>
           )}
-        </div>
-        <button
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white"
-          style={{
-            border: "1.5px solid #3a3a3a",
-            background: "transparent",
+        </Box>
+
+        <Button
+          variant="contained"
+          startIcon={<AddOutlinedIcon />}
+          sx={{
+            borderRadius: 3,
+            textTransform: "none",
+            px: 3,
+            height: 44,
           }}
         >
-          <span
-            style={{
-              width: 13,
-              height: 13,
-              border: "1.5px solid #aaa",
-              display: "inline-block",
-              borderRadius: 2,
-            }}
-          />
-          New transaction
-        </button>
-      </div>
+          New Transaction
+        </Button>
+      </Box>
 
-      {/* Stat cards */}
+      {/* Stats */}
       <Box
         sx={{
           display: "grid",
           gridTemplateColumns: {
             xs: "1fr",
-            sm: "repeat(2, 1fr)",
-            lg: "repeat(4, 1fr)",
+            sm: "repeat(2,1fr)",
+            lg: "repeat(4,1fr)",
           },
           gap: 2,
           mb: 3,
         }}
       >
         {statCards.map((card) => (
-          <Card key={card.label} sx={panelSx}>
+          <Card
+            key={card.label}
+            sx={{
+              ...panelSx,
+              transition: "0.2s",
+
+              "&:hover": {
+                transform: "translateY(-2px)",
+                boxShadow: 3,
+              },
+            }}
+          >
             <Box
               sx={{
-                width: 42,
-                height: 42,
-                borderRadius: 2,
-                bgcolor: card.bg,
+                width: 52,
+                height: 52,
+                borderRadius: 3,
+                bgcolor: `${card.bg}15`,
+                color: card.bg,
+
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+
                 mb: 2,
+
+                "& svg": {
+                  fontSize: 28,
+                },
               }}
             >
-              <Box
-                sx={{
-                  width: 16,
-                  height: 16,
-                  border: "2px solid rgba(0,0,0,.15)",
-                  borderRadius: 1,
-                }}
-              />
+              {card.icon}
             </Box>
 
             <Typography
@@ -186,7 +221,6 @@ export default function DashboardPage() {
               sx={{
                 fontWeight: 700,
                 color: card.valueColor,
-                mb: 0.5,
               }}
             >
               {card.value}
@@ -195,26 +229,21 @@ export default function DashboardPage() {
             <Typography
               variant="body2"
               sx={{
+                mt: 0.5,
                 fontWeight: 600,
-                color: "#111827",
               }}
             >
               {card.label}
             </Typography>
 
-            <Typography
-              variant="caption"
-              sx={{
-                color: "#6b7280",
-              }}
-            >
+            <Typography variant="caption" color="text.secondary">
               {card.sub}
             </Typography>
           </Card>
         ))}
       </Box>
 
-      {/* Bottom panels */}
+      {/* Bottom Panels */}
       <Box
         sx={{
           display: "grid",
@@ -225,27 +254,23 @@ export default function DashboardPage() {
           gap: 2,
         }}
       >
-        {/* Recent transactions */}
+        {/* Recent Transactions */}
         <Card sx={panelSx}>
           <Box
             sx={{
+              mb: 3,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 2,
             }}
           >
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 600,
-                color: "#111827",
-              }}
-            >
-              Recent transactions
+            <Typography sx={{ fontWeight: 600 }}>
+              Recent Transactions
             </Typography>
 
-            <Button size="small">View all</Button>
+            <Button size="small" startIcon={<VisibilityOutlinedIcon />}>
+              View All
+            </Button>
           </Box>
 
           <Box
@@ -261,52 +286,42 @@ export default function DashboardPage() {
                 sx={{
                   display: "flex",
                   alignItems: "center",
-                  gap: 1.5,
+                  gap: 2,
                 }}
               >
                 <Box
                   sx={{
-                    width: 8,
-                    height: 8,
-                    borderRadius: "50%",
-                    bgcolor: tx.positive ? "#22c55e" : "#3b82f6",
-                    flexShrink: 0,
-                  }}
-                />
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+                    bgcolor: tx.positive ? "success.light" : "error.light",
 
-                <Box
-                  sx={{
-                    flex: 1,
-                    minWidth: 0,
+                    color: tx.positive ? "success.main" : "error.main",
+
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 500,
-                      color: "#111827",
-                    }}
-                    noWrap
-                  >
-                    {tx.name}
-                  </Typography>
+                  {tx.positive ? (
+                    <ArrowUpwardOutlinedIcon fontSize="small" />
+                  ) : (
+                    <ArrowDownwardOutlinedIcon fontSize="small" />
+                  )}
+                </Box>
 
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "#6b7280",
-                    }}
-                    noWrap
-                  >
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontWeight: 500 }}>{tx.name}</Typography>
+
+                  <Typography variant="caption" color="text.secondary">
                     {tx.detail}
                   </Typography>
                 </Box>
 
                 <Typography
-                  variant="body2"
                   sx={{
                     fontWeight: 600,
-                    color: tx.positive ? "#16a34a" : "#dc2626",
+                    color: tx.positive ? "success.main" : "error.main",
                   }}
                 >
                   {tx.qty}
@@ -316,27 +331,21 @@ export default function DashboardPage() {
           </Box>
         </Card>
 
-        {/* Expiry watch */}
+        {/* Expiry Watch */}
         <Card sx={panelSx}>
           <Box
             sx={{
+              mb: 3,
               display: "flex",
               justifyContent: "space-between",
               alignItems: "center",
-              mb: 2,
             }}
           >
-            <Typography
-              variant="subtitle2"
-              sx={{
-                fontWeight: 600,
-                color: "#111827",
-              }}
-            >
-              Expiry watch
-            </Typography>
+            <Typography sx={{ fontWeight: 600 }}>Expiry Watch</Typography>
 
-            <Button size="small">View all</Button>
+            <Button size="small" startIcon={<VisibilityOutlinedIcon />}>
+              View All
+            </Button>
           </Box>
 
           <Box
@@ -351,60 +360,52 @@ export default function DashboardPage() {
                 key={item.name + item.lot}
                 sx={{
                   display: "flex",
-                  justifyContent: "space-between",
                   alignItems: "center",
                   gap: 2,
                 }}
               >
                 <Box
                   sx={{
-                    flex: 1,
-                    minWidth: 0,
+                    width: 40,
+                    height: 40,
+                    borderRadius: 2,
+
+                    bgcolor: item.status === "expired" ? "#fee2e2" : "#fef3c7",
+
+                    color: item.status === "expired" ? "#dc2626" : "#d97706",
+
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
                   }}
                 >
-                  <Typography
-                    variant="body2"
-                    sx={{
-                      fontWeight: 500,
-                      color: "#111827",
-                    }}
-                    noWrap
-                  >
-                    {item.name}
-                  </Typography>
+                  {item.status === "expired" ? (
+                    <ErrorOutlineOutlinedIcon fontSize="small" />
+                  ) : (
+                    <WarningAmberOutlinedIcon fontSize="small" />
+                  )}
+                </Box>
 
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      color: "#6b7280",
-                    }}
-                    noWrap
-                  >
+                <Box sx={{ flex: 1 }}>
+                  <Typography sx={{ fontWeight: 500 }}>{item.name}</Typography>
+
+                  <Typography variant="caption" color="text.secondary">
                     {item.lot}
                   </Typography>
                 </Box>
 
-                <Box
-                  sx={{
-                    textAlign: "right",
-                  }}
-                >
-                  <Typography
-                    variant="caption"
-                    sx={{
-                      fontWeight: 600,
-                      color: item.status === "expired" ? "#dc2626" : "#d97706",
-                    }}
-                  >
-                    {item.status === "expired" ? "Expired" : "Near expiry"}
-                  </Typography>
+                <Box sx={{ textAlign: "right" }}>
+                  <Chip
+                    size="small"
+                    label={
+                      item.status === "expired" ? "Expired" : "Near Expiry"
+                    }
+                    color={item.status === "expired" ? "error" : "warning"}
+                  />
 
                   <Typography
                     variant="caption"
-                    sx={{
-                      display: "block",
-                      color: "#6b7280",
-                    }}
+                    sx={{ mt: 0.5, display: "block", color: "text.secondary" }}
                   >
                     {item.expiry}
                   </Typography>
@@ -414,6 +415,6 @@ export default function DashboardPage() {
           </Box>
         </Card>
       </Box>
-    </div>
+    </Box>
   );
 }
