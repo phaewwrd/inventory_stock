@@ -1,5 +1,5 @@
-import ExcelJS from "exceljs";
 import dayjs from "dayjs";
+import ExcelJS from "exceljs";
 import type {
 	SerializedExpiryReport,
 	SerializedProductReport,
@@ -34,10 +34,7 @@ function autoFitColumns(worksheet: ExcelJS.Worksheet) {
 	});
 }
 
-async function downloadWorkbook(
-	workbook: ExcelJS.Workbook,
-	filename: string,
-) {
+async function downloadWorkbook(workbook: ExcelJS.Workbook, filename: string) {
 	const buffer = await workbook.xlsx.writeBuffer();
 	const blob = new Blob([buffer], {
 		type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
@@ -276,9 +273,7 @@ export async function exportStockReceivedReportToExcel(
 			item.quantity,
 			item.unitCost,
 			item.totalCost,
-			item.expiryDate
-				? formatDate(item.expiryDate, "MMM DD, YYYY")
-				: "N/A",
+			item.expiryDate ? formatDate(item.expiryDate, "MMM DD, YYYY") : "N/A",
 			item.unit,
 			item.createdByName || "System",
 		]);

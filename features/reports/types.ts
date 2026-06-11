@@ -22,6 +22,11 @@ export interface SerializedDateRange {
 	preset: DateRangePreset;
 }
 
+export interface ReportsTabValue {
+	value: "product" | "expiry" | "stockReceived" | "stockIssued";
+	label: string;
+}
+
 // ─── KPI Types ───────────────────────────────────────────────────────────────
 
 export interface KPIData {
@@ -197,7 +202,7 @@ export interface StockMovementSummary {
 export interface ProductReportResponse {
 	kpis: KPIData[];
 	summary: ProductSummary;
-	products: SerializedProductReport[];
+	items: SerializedProductReport[];
 	dateRange: SerializedDateRange;
 }
 

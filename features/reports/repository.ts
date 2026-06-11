@@ -1,3 +1,5 @@
+"use server";
+
 import { and, between, eq, gte, sql } from "drizzle-orm";
 import { db } from "@/app/db";
 import {
@@ -17,25 +19,25 @@ import type {
 // ─── Product Report Queries ──────────────────────────────────────────────────
 
 export async function getProductReportData(
-  startDate: Date,
-  endDate: Date,
+	startDate: Date,
+	endDate: Date,
 ): Promise<ProductReport[]> {
-  const lotSummary = db
-    .select({
-      productId: productLots.productId,
-      currentStock: sql<number>`
+	const lotSummary = db
+		.select({
+			productId: productLots.productId,
+			currentStock: sql<number>`
         COALESCE(SUM(${productLots.remainingQty}), 0)
       `.as("current_stock"),
-    })
-    .from(productLots)
-    .groupBy(productLots.productId)
-    .as("lot_summary");
+		})
+		.from(productLots)
+		.groupBy(productLots.productId)
+		.as("lot_summary");
 
-  const movementSummary = db
-    .select({
-      productId: stockMovements.productId,
+	const movementSummary = db
+		.select({
+			productId: stockMovements.productId,
 
-      totalReceived: sql<number>`
+			totalReceived: sql<number>`
         COALESCE(
           SUM(
             CASE
@@ -48,7 +50,7 @@ export async function getProductReportData(
         )
       `.as("total_received"),
 
-      totalIssued: sql<number>`
+			totalIssued: sql<number>`
         COALESCE(
           SUM(
             CASE
@@ -61,23 +63,21 @@ export async function getProductReportData(
         )
       `.as("total_issued"),
 
-      lastMovement: sql<Date | null>`
+			lastMovement: sql<Date | null>`
         MAX(${stockMovements.createdAt})
       `.as("last_movement"),
-    })
-    .from(stockMovements)
-    .where(
-			between(stockMovements.createdAt, startDate, endDate),
-    )
-    .groupBy(stockMovements.productId)
-    .as("movement_summary");
+		})
+		.from(stockMovements)
+		.where(between(stockMovements.createdAt, startDate, endDate))
+		.groupBy(stockMovements.productId)
+		.as("movement_summary");
 
-  const result = await db
-    .select({
-      productId: products.id,
-      productName: products.name,
-      sku: products.sku,
-      category: categories.productname,
+	const result = await db
+		.select({
+			productId: products.id,
+			productName: products.name,
+			sku: products.sku,
+			category: categories.productname,
 
 			totalReceived: movementSummary.totalReceived,
 
@@ -85,31 +85,25 @@ export async function getProductReportData(
 
 			currentStock: lotSummary.currentStock,
 
-      minimumStock: products.minimumStock,
-      latestCost: products.latestCost,
+			minimumStock: products.minimumStock,
+			latestCost: products.latestCost,
 
-      totalValue: sql<number>`
+			totalValue: sql<number>`
         COALESCE(${lotSummary.currentStock}, 0)
         * COALESCE(${products.latestCost}, 0)
       `,
 
-      unit: products.unit,
+			unit: products.unit,
 
-      lastMovement: movementSummary.lastMovement,
-    })
-    .from(products)
-    .leftJoin(categories, eq(products.categoryId, categories.id))
-    .leftJoin(
-      lotSummary,
-      eq(products.id, lotSummary.productId),
-    )
-    .leftJoin(
-      movementSummary,
-      eq(products.id, movementSummary.productId),
-    )
-    .where(eq(products.isActive, true));
+			lastMovement: movementSummary.lastMovement,
+		})
+		.from(products)
+		.leftJoin(categories, eq(products.categoryId, categories.id))
+		.leftJoin(lotSummary, eq(products.id, lotSummary.productId))
+		.leftJoin(movementSummary, eq(products.id, movementSummary.productId))
+		.where(eq(products.isActive, true));
 
-  return result.map((row) => ({
+	return result.map((row) => ({
 		productId: row.productId,
 		productName: row.productName,
 		sku: row.sku,
@@ -121,10 +115,8 @@ export async function getProductReportData(
 		latestCost: Number(row.latestCost ?? 0),
 		totalValue: Number(row.totalValue ?? 0),
 		unit: row.unit,
-		lastMovement: row.lastMovement
-			? new Date(row.lastMovement)
-			: null,
-  }));
+		lastMovement: row.lastMovement ? new Date(row.lastMovement) : null,
+	}));
 }
 
 // ─── Expiry Report Queries ───────────────────────────────────────────────────

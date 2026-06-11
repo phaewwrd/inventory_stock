@@ -1,20 +1,20 @@
 import { Stack } from "@mui/material";
 
 export default function SettingsLayout({
-  children,
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  return (
-    <Stack
-      spacing={2}
-      sx={{
-        height: "100%",
-        overflow: "hidden",
-        backgroundColor: "background.default",
-      }}
-    >
-      {children}
-    </Stack>
-  );
+	return (
+		<Stack
+			spacing={2}
+			sx={{
+				height: "100%",
+				overflow: "hidden",
+				backgroundColor: "background.default",
+			}}
+		>
+			{children}
+		</Stack>
+	);
 }

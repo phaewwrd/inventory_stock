@@ -1,6 +1,16 @@
+import "server-only";
+
 import dayjs from "dayjs";
+import {
+	getCategoryBreakdown,
+	getExpiryReportData,
+	getProductReportData,
+	getStockIssuedReportData,
+	getStockReceivedReportData,
+	getTimeSeriesData,
+	getTopProducts,
+} from "./repository";
 import type {
-	CategoryData,
 	DateRange,
 	DateRangePreset,
 	ExpiryReportResponse,
@@ -16,19 +26,12 @@ import type {
 	StockMovementSummary,
 	StockReceivedReportResponse,
 } from "./types";
-import {
-	getCategoryBreakdown,
-	getExpiryReportData,
-	getProductReportData,
-	getStockIssuedReportData,
-	getStockReceivedReportData,
-	getTimeSeriesData,
-	getTopProducts,
-} from "./repository";
 
 // ─── Date Range Helpers ──────────────────────────────────────────────────────
 
-export function getDateRangeFromPreset(preset: DateRangePreset): DateRange {
+export async function getDateRangeFromPreset(
+	preset: DateRangePreset,
+): Promise<DateRange> {
 	const today = dayjs();
 	let startDate: Date;
 	let endDate: Date;
@@ -144,7 +147,7 @@ export async function generateProductReport(
 	return {
 		kpis,
 		summary,
-		products: serializedProducts,
+		items: serializedProducts,
 		dateRange: {
 			startDate: dateRange.startDate.toISOString(),
 			endDate: dateRange.endDate.toISOString(),
