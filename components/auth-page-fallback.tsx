@@ -1,3 +1,3 @@
 export function AuthPageFallback() {
-  return <div className="min-h-screen bg-gray-50" />;
+	return <div className="min-h-screen bg-gray-50" />;
 }

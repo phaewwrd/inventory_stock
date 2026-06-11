@@ -1,5 +1,25 @@
 {
+	"$schema": "https://biomejs.dev/schemas/latest/schema.json",
 	"files": {
-		"includes": [".next", "node_modules", "dist", "build"]
+		"includes": [
+			"**",
+			"!**/.next",
+			"!**/node_modules",
+			"!**/dist",
+			"!**/build",
+			"!src/app/globals.css"
+		]
+	},
+	"assist": {
+		"actions": {
+			"source": {
+				"organizeImports": "on"
+			}
+		}
+	},
+	"css": {
+		"parser": {
+			"tailwindDirectives": true
+		}
 	}
 }
