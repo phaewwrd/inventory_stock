@@ -1,285 +1,457 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation";
+import AddOutlinedIcon from "@mui/icons-material/AddOutlined";
+import ArrowDownwardOutlinedIcon from "@mui/icons-material/ArrowDownwardOutlined";
+import ArrowUpwardOutlinedIcon from "@mui/icons-material/ArrowUpwardOutlined";
+import ErrorOutlineOutlinedIcon from "@mui/icons-material/ErrorOutlineOutlined";
+import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
+import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
+import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
+import { Alert, Box, Button, Card, Chip, Typography } from "@mui/material";
+import {
+	useExpiryReport,
+	useProductReport,
+	useStockIssuedReport,
+	useStockReceivedReport,
+} from "@/features/reports/hooks";
 import { authClient } from "@/lib/auth-client";
-import { ROUTES } from "@/constants/routes";
 
-const recentTransactions = [
-  {
-    name: "Amoxicillin 250mg",
-    detail: "Lot #A2024-03 · Receive",
-    qty: "+120 units",
-    positive: true,
-  },
-  {
-    name: "Cefixime 100mg/5ml",
-    detail: "Lot #C2023-11 · Cut stock",
-    qty: "-48 units",
-    positive: false,
-  },
-  {
-    name: "Paracetamol 500mg",
-    detail: "Lot #P2024-01 · Receive",
-    qty: "+200 units",
-    positive: true,
-  },
-  {
-    name: "Ibuprofen 400mg",
-    detail: "Lot #I2023-09 · Cut stock",
-    qty: "-30 units",
-    positive: false,
-  },
-];
-
-const expiryWatch = [
-  {
-    name: "Cefixime 100mg/5ml",
-    lot: "Lot #C2023-11",
-    expiry: "14 Jan 2024",
-    status: "expired",
-  },
-  {
-    name: "Amoxicillin 125mg",
-    lot: "Lot #A2023-06",
-    expiry: "28 Feb 2024",
-    status: "expired",
-  },
-  {
-    name: "Metronidazole 200mg",
-    lot: "Lot #M2024-02",
-    expiry: "15 Jun 2026",
-    status: "near",
-  },
-  {
-    name: "Omeprazole 20mg",
-    lot: "Lot #O2024-04",
-    expiry: "30 Jun 2026",
-    status: "near",
-  },
-];
-
-
-
-const statCards = [
-  {
-    bg: "#1d4ed8",
-    value: "1,248",
-    valueColor: "#ffffff",
-    label: "Total products",
-    sub: "+12 added this week",
-  },
-  {
-    bg: "#b45309",
-    value: "34",
-    valueColor: "#f59e0b",
-    label: "Low stock alerts",
-    sub: "Below reorder level",
-  },
-  {
-    bg: "#92400e",
-    value: "18",
-    valueColor: "#f59e0b",
-    label: "Near expiry",
-    sub: "Within 30 days",
-  },
-  {
-    bg: "#7f1d1d",
-    value: "7",
-    valueColor: "#ef4444",
-    label: "Expired products",
-    sub: "Requires action",
-  },
-];
+const panelSx = {
+	p: 3,
+	borderRadius: 4,
+	bgcolor: "background.paper",
+	border: "1px solid",
+	borderColor: "divider",
+	boxShadow: "none",
+};
 
 export default function DashboardPage() {
-  const router = useRouter();
-  const { data: session, isPending } = authClient.useSession();
+	const { data: session, isPending } = authClient.useSession();
 
+	const defaultFilter = {
+		preset: "last30days" as const,
+		customStart: null,
+		customEnd: null,
+	};
 
-  const today = new Date();
-  const dateStr = today.toLocaleDateString("en-US", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-  });
+	const productQuery = useProductReport(defaultFilter);
+	const expiryQuery = useExpiryReport(defaultFilter);
+	const receivedQuery = useStockReceivedReport(defaultFilter);
+	const issuedQuery = useStockIssuedReport(defaultFilter);
 
-  const userName = session?.user.name || "Warehouse user";
+	const today = new Date();
 
-  return (
-    <div className="flex flex-col gap-4 m-10">
-      {/* Page heading */}
-      <div className="flex items-start justify-between mb-6">
-        <div>
-          <h1 className="text-2xl font-bold text-white">Overview</h1>
-          <p className="text-sm mt-0.5" style={{ color: "#777" }}>
-            {dateStr} · Warehouse A
-          </p>
-          {!isPending && (
-            <p className="mt-1 text-xs" style={{ color: "#888" }}>
-              Signed in as {userName}
-            </p>
-          )}
-        </div>
-        <button
-          className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white"
-          style={{
-            border: "1.5px solid #3a3a3a",
-            background: "transparent",
-          }}
-        >
-          <span
-            style={{
-              width: 13,
-              height: 13,
-              border: "1.5px solid #aaa",
-              display: "inline-block",
-              borderRadius: 2,
-            }}
-          />
-          New transaction
-        </button>
-      </div>
+	const dateStr = today.toLocaleDateString("en-US", {
+		weekday: "long",
+		day: "numeric",
+		month: "long",
+		year: "numeric",
+	});
 
-      {/* Stat cards */}
-      <div className="grid grid-cols-4 gap-4 mb-5">
-        {statCards.map((card) => (
-          <div
-            key={card.label}
-            className="rounded-2xl p-5"
-            style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-          >
-            <div
-              className="rounded-xl flex items-center justify-center mb-4"
-              style={{ width: 42, height: 42, background: card.bg }}
-            >
-              <span
-                style={{
-                  width: 16,
-                  height: 16,
-                  border: "2px solid rgba(255,255,255,0.55)",
-                  display: "inline-block",
-                  borderRadius: 3,
-                }}
-              />
-            </div>
-            <div
-              className="text-3xl font-bold mb-1"
-              style={{ color: card.valueColor }}
-            >
-              {card.value}
-            </div>
-            <div className="text-sm text-white font-medium">
-              {card.label}
-            </div>
-            <div className="text-xs mt-1" style={{ color: "#666" }}>
-              {card.sub}
-            </div>
-          </div>
-        ))}
-      </div>
+	const userName = session?.user.name || "Warehouse User";
 
-      {/* Bottom panels */}
-      <div className="grid grid-cols-2 gap-4">
-        {/* Recent transactions */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-white text-sm">
-              Recent transactions
-            </span>
-            <button className="text-xs" style={{ color: "#3b82f6" }}>
-              View all
-            </button>
-          </div>
-          <div className="flex flex-col gap-3">
-            {recentTransactions.map((tx) => (
-              <div
-                key={tx.name + tx.detail}
-                className="flex items-center gap-3"
-              >
-                <span
-                  className="rounded-full shrink-0"
-                  style={{
-                    width: 8,
-                    height: 8,
-                    background: tx.positive ? "#22c55e" : "#3b82f6",
-                  }}
-                />
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white font-medium truncate">
-                    {tx.name}
-                  </div>
-                  <div
-                    className="text-xs truncate"
-                    style={{ color: "#777" }}
-                  >
-                    {tx.detail}
-                  </div>
-                </div>
-                <div
-                  className="text-sm font-medium shrink-0"
-                  style={{ color: tx.positive ? "#22c55e" : "#f87171" }}
-                >
-                  {tx.qty}
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
+	const productSummary = productQuery.data?.summary;
+	const expirySummary = expiryQuery.data?.summary;
+	const dashboardErrors = [
+		productQuery.error?.message,
+		expiryQuery.error?.message,
+		receivedQuery.error?.message,
+		issuedQuery.error?.message,
+	].filter((message): message is string => Boolean(message));
+	const dashboardError = dashboardErrors[0] ?? null;
 
-        {/* Expiry watch */}
-        <div
-          className="rounded-2xl p-5"
-          style={{ background: "#272727", border: "1px solid #2e2e2e" }}
-        >
-          <div className="flex items-center justify-between mb-4">
-            <span className="font-semibold text-white text-sm">
-              Expiry watch
-            </span>
-            <button className="text-xs" style={{ color: "#3b82f6" }}>
-              View all
-            </button>
-          </div>
-          <div className="flex flex-col gap-3">
-            {expiryWatch.map((item) => (
-              <div
-                key={item.name + item.lot}
-                className="flex items-center gap-3"
-              >
-                <div className="flex-1 min-w-0">
-                  <div className="text-sm text-white font-medium truncate">
-                    {item.name}
-                  </div>
-                  <div
-                    className="text-xs truncate"
-                    style={{ color: "#777" }}
-                  >
-                    {item.lot}
-                  </div>
-                </div>
-                <div className="text-right shrink-0">
-                  <div
-                    className="text-xs font-semibold"
-                    style={{
-                      color:
-                        item.status === "expired" ? "#ef4444" : "#f59e0b",
-                    }}
-                  >
-                    {item.status === "expired" ? "Expired" : "Near expiry"}
-                  </div>
-                  <div className="text-xs" style={{ color: "#555" }}>
-                    {item.expiry}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
-    </div>
-  );
+	const statCards = [
+		{
+			icon: <Inventory2OutlinedIcon />,
+			bg: "#2563eb",
+			value: productSummary?.totalProducts.toLocaleString() ?? "0",
+			valueColor: "#2563eb",
+			label: "Total Products",
+			sub: "Active inventory items",
+		},
+		{
+			icon: <WarningAmberOutlinedIcon />,
+			bg: "#f59e0b",
+			value: productSummary?.lowStockProducts.toLocaleString() ?? "0",
+			valueColor: "#f59e0b",
+			label: "Low Stock Alerts",
+			sub: "Below reorder level",
+		},
+		{
+			icon: <ScheduleOutlinedIcon />,
+			bg: "#ea580c",
+			value: expirySummary?.criticalItems.toLocaleString() ?? "0",
+			valueColor: "#ea580c",
+			label: "Near Expiry",
+			sub: "Within 30 days",
+		},
+		{
+			icon: <ErrorOutlineOutlinedIcon />,
+			bg: "#dc2626",
+			value: expirySummary?.totalExpired.toLocaleString() ?? "0",
+			valueColor: "#dc2626",
+			label: "Expired Products",
+			sub: "Requires action",
+		},
+	];
+
+	const recentTransactions = [
+		...(receivedQuery.data?.items ?? []).map((item) => ({
+			name: item.productName,
+			detail: `Lot #${item.lotNo} · Receive`,
+			qty: `+${item.quantity.toLocaleString()} ${item.unit}`,
+			positive: true,
+			date: new Date(item.date),
+		})),
+		...(issuedQuery.data?.items ?? []).map((item) => ({
+			name: item.productName,
+			detail: `Lot #${item.lotNo ?? "N/A"} · Issue`,
+			qty: `-${item.quantity.toLocaleString()} ${item.unit}`,
+			positive: false,
+			date: new Date(item.date),
+		})),
+	]
+		.sort((a, b) => b.date.getTime() - a.date.getTime())
+		.slice(0, 5);
+
+	const expiryWatch = (expiryQuery.data?.items ?? [])
+		.filter((item) => item.status === "expired" || item.status === "critical")
+		.sort(
+			(a, b) =>
+				new Date(a.expiryDate).getTime() - new Date(b.expiryDate).getTime(),
+		)
+		.slice(0, 5)
+		.map((item) => ({
+			name: item.productName,
+			lot: `Lot #${item.lotNo}`,
+			expiry: new Date(item.expiryDate).toLocaleDateString("en-US", {
+				day: "2-digit",
+				month: "short",
+				year: "numeric",
+			}),
+			status: item.status === "expired" ? "expired" : "near",
+		}));
+
+	return (
+		<Box
+			sx={{
+				p: 4,
+				height: "100%",
+				boxSizing: "border-box",
+				mb: 3,
+			}}
+		>
+			{" "}
+			{/* Header */}
+			<Box
+				sx={{
+					mb: 4,
+					display: "flex",
+					justifyContent: "space-between",
+					alignItems: "flex-start",
+					flexWrap: "wrap",
+					gap: 2,
+				}}
+			>
+				<Box>
+					<Typography variant="h4" sx={{ fontWeight: 700 }}>
+						Overview
+					</Typography>
+
+					<Typography variant="body2" color="text.secondary">
+						{dateStr} • Warehouse A
+					</Typography>
+
+					{!isPending && (
+						<Typography variant="body2" color="text.secondary">
+							Signed in as {userName}
+						</Typography>
+					)}
+				</Box>
+
+				<Button
+					variant="contained"
+					startIcon={<AddOutlinedIcon />}
+					sx={{
+						borderRadius: 3,
+						textTransform: "none",
+						px: 3,
+						height: 44,
+					}}
+				>
+					New Transaction
+				</Button>
+			</Box>
+			{dashboardError && (
+				<Alert severity="error" sx={{ mb: 3 }}>
+					{dashboardError}
+				</Alert>
+			)}
+			{/* Stats */}
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: {
+						xs: "1fr",
+						sm: "repeat(2,1fr)",
+						lg: "repeat(4,1fr)",
+					},
+					gap: 2,
+					mb: 3,
+				}}
+			>
+				{statCards.map((card) => (
+					<Card
+						key={card.label}
+						sx={{
+							...panelSx,
+							transition: "0.2s",
+
+							"&:hover": {
+								transform: "translateY(-2px)",
+								boxShadow: 3,
+							},
+						}}
+					>
+						<Box
+							sx={{
+								width: 52,
+								height: 52,
+								borderRadius: 3,
+								bgcolor: `${card.bg}15`,
+								color: card.bg,
+
+								display: "flex",
+								alignItems: "center",
+								justifyContent: "center",
+
+								mb: 2,
+
+								"& svg": {
+									fontSize: 28,
+								},
+							}}
+						>
+							{card.icon}
+						</Box>
+
+						<Typography
+							variant="h4"
+							sx={{
+								fontWeight: 700,
+								color: card.valueColor,
+							}}
+						>
+							{card.value}
+						</Typography>
+
+						<Typography
+							variant="body2"
+							sx={{
+								mt: 0.5,
+								fontWeight: 600,
+							}}
+						>
+							{card.label}
+						</Typography>
+
+						<Typography variant="caption" color="text.secondary">
+							{card.sub}
+						</Typography>
+					</Card>
+				))}
+			</Box>
+			{/* Bottom Panels */}
+			<Box
+				sx={{
+					display: "grid",
+					gridTemplateColumns: {
+						xs: "1fr",
+						md: "1fr 1fr",
+					},
+					gap: 2,
+				}}
+			>
+				{/* Recent Transactions */}
+				<Card sx={panelSx}>
+					<Box
+						sx={{
+							mb: 3,
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<Typography sx={{ fontWeight: 600 }}>
+							Recent Transactions
+						</Typography>
+
+						{/* <Button size="small" startIcon={<VisibilityOutlinedIcon />}>
+							View All
+						</Button> */}
+					</Box>
+
+					<Box
+						sx={{
+							display: "flex",
+							flexDirection: "column",
+							gap: 2,
+						}}
+					>
+						{recentTransactions.length === 0 ? (
+							<Typography variant="body2" color="text.secondary">
+								No recent transactions for this period.
+							</Typography>
+						) : (
+							recentTransactions.map((tx) => (
+								<Box
+									key={tx.name + tx.detail}
+									sx={{
+										display: "flex",
+										alignItems: "center",
+										gap: 2,
+									}}
+								>
+									<Box
+										sx={{
+											width: 40,
+											height: 40,
+											borderRadius: 2,
+											bgcolor: tx.positive ? "success.light" : "error.light",
+
+											color: tx.positive ? "success.main" : "error.main",
+
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+										}}
+									>
+										{tx.positive ? (
+											<ArrowUpwardOutlinedIcon fontSize="small" />
+										) : (
+											<ArrowDownwardOutlinedIcon fontSize="small" />
+										)}
+									</Box>
+
+									<Box sx={{ flex: 1 }}>
+										<Typography sx={{ fontWeight: 500 }}>{tx.name}</Typography>
+
+										<Typography variant="caption" color="text.secondary">
+											{tx.detail}
+										</Typography>
+									</Box>
+
+									<Typography
+										sx={{
+											fontWeight: 600,
+											color: tx.positive ? "success.main" : "error.main",
+										}}
+									>
+										{tx.qty}
+									</Typography>
+								</Box>
+							))
+						)}
+					</Box>
+				</Card>
+
+				{/* Expiry Watch */}
+				<Card sx={panelSx}>
+					<Box
+						sx={{
+							mb: 3,
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<Typography sx={{ fontWeight: 600 }}>Expiry Watch</Typography>
+
+						{/* <Button size="small" startIcon={<VisibilityOutlinedIcon />}>
+							View All
+						</Button> */}
+					</Box>
+
+					<Box
+						sx={{
+							display: "flex",
+							flexDirection: "column",
+							gap: 2,
+						}}
+					>
+						{expiryWatch.length === 0 ? (
+							<Typography variant="body2" color="text.secondary">
+								No near-expiry or expired lots found.
+							</Typography>
+						) : (
+							expiryWatch.map((item) => (
+								<Box
+									key={item.name + item.lot}
+									sx={{
+										display: "flex",
+										alignItems: "center",
+										gap: 2,
+									}}
+								>
+									<Box
+										sx={{
+											width: 40,
+											height: 40,
+											borderRadius: 2,
+
+											bgcolor:
+												item.status === "expired" ? "#fee2e2" : "#fef3c7",
+
+											color: item.status === "expired" ? "#dc2626" : "#d97706",
+
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+										}}
+									>
+										{item.status === "expired" ? (
+											<ErrorOutlineOutlinedIcon fontSize="small" />
+										) : (
+											<WarningAmberOutlinedIcon fontSize="small" />
+										)}
+									</Box>
+
+									<Box sx={{ flex: 1 }}>
+										<Typography sx={{ fontWeight: 500 }}>
+											{item.name}
+										</Typography>
+
+										<Typography variant="caption" color="text.secondary">
+											{item.lot}
+										</Typography>
+									</Box>
+
+									<Box sx={{ textAlign: "right" }}>
+										<Chip
+											size="small"
+											label={
+												item.status === "expired" ? "Expired" : "Near Expiry"
+											}
+											color={item.status === "expired" ? "error" : "warning"}
+										/>
+
+										<Typography
+											variant="caption"
+											sx={{
+												mt: 0.5,
+												display: "block",
+												color: "text.secondary",
+											}}
+										>
+											{item.expiry}
+										</Typography>
+									</Box>
+								</Box>
+							))
+						)}
+					</Box>
+				</Card>
+			</Box>
+		</Box>
+	);
 }

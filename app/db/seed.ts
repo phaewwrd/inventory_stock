@@ -33,6 +33,18 @@ const categorySeeds = [
  */
 const adminId = randomUUID();
 
+type RawProduct = [
+	sku: string,
+	categoryId: string,
+	name: string,
+	size: string,
+	unit: string,
+	cost: number,
+	minStock: number,
+	stock: number,
+	status: string,
+];
+
 /**
  * =========================
  * PRODUCT RAW DATA
@@ -264,7 +276,7 @@ async function seed() {
 			name: "Admin",
 			email: "admin@system.com",
 			disabled: false,
-			role: "OWNER",
+			authRole: "OWNER",
 			emailVerified: true,
 		});
 
@@ -274,7 +286,7 @@ async function seed() {
 		// PRODUCTS
 		for (const p of rawProducts) {
 			const [sku, categoryId, name, size, unit, cost, minStock, stock, status] =
-				p as any;
+				p as RawProduct;
 
 			const productId = randomUUID();
 

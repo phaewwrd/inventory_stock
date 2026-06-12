@@ -1,4 +1,5 @@
-CREATE TYPE "public"."user_role" AS ENUM('OWNER', 'STOCK_MANAGER', 'STOCK_USER');--> statement-breakpoint
+CREATE TYPE "public"."auth_role" AS ENUM('OWNER', 'STOCK_MANAGER', 'STOCK_USER');--> statement-breakpoint
+CREATE TYPE "public"."role" AS ENUM('user', 'admin');--> statement-breakpoint
 CREATE TYPE "public"."movement_type" AS ENUM('receive', 'issue', 'adjustment');--> statement-breakpoint
 CREATE TABLE "account" (
 	"id" text PRIMARY KEY NOT NULL,
@@ -34,10 +35,14 @@ CREATE TABLE "user" (
 	"email" text NOT NULL,
 	"email_verified" boolean DEFAULT false NOT NULL,
 	"image" text,
-	"role" "user_role" DEFAULT 'STOCK_USER' NOT NULL,
-	"disabled" boolean DEFAULT false NOT NULL,
+	"auth_role" "auth_role" DEFAULT 'STOCK_USER' NOT NULL,
+	"role" "role" DEFAULT 'user' NOT NULL,
+	"banned" boolean DEFAULT false NOT NULL,
+	"ban_reason" text,
+	"ban_expires" timestamp,
 	"created_at" timestamp DEFAULT now() NOT NULL,
 	"updated_at" timestamp DEFAULT now() NOT NULL,
+	"disabled" boolean DEFAULT false NOT NULL,
 	CONSTRAINT "user_email_unique" UNIQUE("email")
 );
 --> statement-breakpoint

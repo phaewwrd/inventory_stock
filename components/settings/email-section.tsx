@@ -1,76 +1,117 @@
-import { authClient } from "@/lib/auth-client";
-import { Feedback, FeedbackState } from "./feedback";
-import { Field } from "../field";
-import { inputStyle } from "../input-style";
-import { SectionCard } from "./section-card";
+"use client";
+
+import {
+	Alert,
+	Box,
+	Button,
+	Card,
+	CardContent,
+	TextField,
+	Typography,
+} from "@mui/material";
 import { useState, useTransition } from "react";
-import { SaveButton } from "./save-btn";
+import { authClient } from "@/lib/auth-client";
 
 export function EmailSection({ currentEmail }: { currentEmail: string }) {
-    const [email, setEmail] = useState(currentEmail);
-    const [feedback, setFeedback] = useState<FeedbackState | null>(null);
-    const [isPending, startTransition] = useTransition();
+	const [email, setEmail] = useState(currentEmail);
 
-    function handleSubmit(e: React.FormEvent) {
-        e.preventDefault();
-        const trimmed = email.trim().toLowerCase();
-        if (!trimmed || trimmed === currentEmail.toLowerCase()) {
-            setFeedback({ type: "error", message: "Please enter a different email address." });
-            return;
-        }
-        setFeedback(null);
+	const [message, setMessage] = useState("");
+	const [errorMessage, setErrorMessage] = useState("");
 
-        startTransition(async () => {
-            const { error } = await authClient.changeEmail({
-                newEmail: trimmed,
-                callbackURL: "/dashboard/settings",
-            });
-            if (error) {
-                setFeedback({ type: "error", message: error.message ?? "Failed to change email." });
-            } else {
-                setFeedback({
-                    type: "success",
-                    message: "Email updated successfully.",
-                });
-            }
-        });
-    }
+	const [isPending, startTransition] = useTransition();
 
-    return (
-        <SectionCard
-            title="Email Address"
-            subtitle="Change the email used to sign in to your account"
-        >
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
-                <Feedback state={feedback} />
+	function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+		e.preventDefault();
 
-                <Field id="settings-email" label="Email Address">
-                    <input
-                        id="settings-email"
-                        type="email"
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        required
-                        placeholder="you@example.com"
-                        style={inputStyle}
-                    />
-                </Field>
+		const trimmed = email.trim().toLowerCase();
 
-                <div
-                    className="rounded-xl px-4 py-3 text-xs"
-                    style={{
-                        background: "rgba(29,78,216,0.12)",
-                        border: "1px solid rgba(29,78,216,0.3)",
-                        color: "#93c5fd",
-                    }}
-                >
-                    Your email is used to sign in. Changes take effect immediately for this internal system.
-                </div>
+		if (!trimmed || trimmed === currentEmail.toLowerCase()) {
+			setErrorMessage("Please enter a different email address.");
+			return;
+		}
 
-                <div className="flex justify-end">
-                    <SaveButton loading={isPending} label="Update Email" />
-                </div>
-            </form>
-        </SectionCard>
-    );
+		setErrorMessage("");
+		setMessage("");
+
+		startTransition(async () => {
+			const { error } = await authClient.changeEmail({
+				newEmail: trimmed,
+				callbackURL: "/dashboard/settings",
+			});
+
+			if (error) {
+				setErrorMessage(error.message ?? "Failed to change email.");
+				return;
+			}
+
+			setMessage("Email updated successfully.");
+		});
+	}
+
+	return (
+		<Card
+			sx={{
+				borderRadius: 4,
+				border: "1px solid #e5e7eb",
+				boxShadow: "none",
+			}}
+		>
+			<CardContent sx={{ p: 3 }}>
+				<Typography variant="h6" sx={{ fontWeight: 600 }} gutterBottom>
+					Email Address
+				</Typography>
+
+				<Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
+					Change the email used to sign in to your account
+				</Typography>
+
+				<Box component="form" onSubmit={handleSubmit}>
+					{errorMessage && (
+						<Alert severity="error" sx={{ mb: 2 }}>
+							{errorMessage}
+						</Alert>
+					)}
+
+					{message && (
+						<Alert severity="success" sx={{ mb: 2 }}>
+							{message}
+						</Alert>
+					)}
+
+					<TextField
+						fullWidth
+						label="Email Address"
+						type="email"
+						value={email}
+						onChange={(e) => setEmail(e.target.value)}
+						disabled={isPending}
+						sx={{ mb: 2 }}
+					/>
+
+					<Alert severity="info" sx={{ mb: 3 }}>
+						Your email is used to sign in. Changes take effect immediately for
+						this internal system.
+					</Alert>
+
+					<Box
+						sx={{
+							display: "flex",
+							justifyContent: "flex-end",
+						}}
+					>
+						<Button
+							type="submit"
+							variant="contained"
+							disabled={
+								isPending ||
+								email.trim().toLowerCase() === currentEmail.toLowerCase()
+							}
+						>
+							{isPending ? "Updating..." : "Update Email"}
+						</Button>
+					</Box>
+				</Box>
+			</CardContent>
+		</Card>
+	);
 }

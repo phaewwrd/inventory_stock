@@ -1,21 +1,40 @@
-import { Sidebar } from "@/components/layout/sidebar";
+import Stack from "@mui/material/Stack";
+import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 import { Navbar } from "@/components/layout/navbar";
+import { Sidebar } from "@/components/layout/sidebar";
+import { auth } from "@/lib/auth";
 
-export default function DashboardLayout({
-  children,
+export default async function DashboardLayout({
+	children,
 }: {
-  children: React.ReactNode;
+	children: React.ReactNode;
 }) {
-  return (
-    <div
-      className="flex h-screen overflow-hidden"
-      style={{ background: "#1a1a1a", color: "#e5e5e5" }}
-    >
-      <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden">
-        <Navbar />
-        {children}
-      </div>
-    </div>
-  );
+	const session = await auth.api.getSession({
+		headers: await headers(),
+	});
+
+	const user = session?.user;
+
+	if (!user) {
+		redirect("/login");
+	}
+
+	return (
+		<Stack
+			direction="row"
+			sx={{
+				height: "100vh",
+				overflow: "hidden",
+				backgroundColor: "background.default",
+			}}
+		>
+			<Sidebar />
+
+			<div className="flex-1 overflow-auto">
+				<Navbar />
+				{children}
+			</div>
+		</Stack>
+	);
 }
