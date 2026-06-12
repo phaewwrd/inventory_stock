@@ -13,6 +13,7 @@ import { Box, Chip, Typography } from "@mui/material";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
+import { useExpiryReport } from "@/features/reports/hooks";
 import { authClient } from "@/lib/auth-client";
 
 type NavItem = {
@@ -27,7 +28,10 @@ type NavSection = {
 	items: NavItem[];
 };
 
-function getNavSections(authRole: string | undefined): NavSection[] {
+function getNavSections(
+	authRole: string | undefined,
+	criticalExpiryCount: number | undefined,
+): NavSection[] {
 	return [
 		{
 			label: "MAIN",
@@ -70,7 +74,7 @@ function getNavSections(authRole: string | undefined): NavSection[] {
 				{
 					name: "Expiry",
 					href: ROUTES.DASHBOARD.EXPIRY,
-					badge: 25,
+					badge: criticalExpiryCount,
 					icon: <AccessTimeOutlinedIcon fontSize="small" />,
 				},
 				{
@@ -110,8 +114,18 @@ function getNavSections(authRole: string | undefined): NavSection[] {
 export function Sidebar() {
 	const pathname = usePathname();
 	const { data: session } = authClient.useSession();
+	const expiryQuery = useExpiryReport({
+		preset: "today",
+		customStart: null,
+		customEnd: null,
+	});
 
-	const navSections = getNavSections(session?.user?.authRole);
+	const criticalExpiryCount = expiryQuery.data?.summary.criticalItems;
+
+	const navSections = getNavSections(
+		session?.user?.authRole,
+		criticalExpiryCount,
+	);
 
 	const isActive = (href: string) => {
 		if (href === ROUTES.DASHBOARD.HOME) {
@@ -238,7 +252,7 @@ export function Sidebar() {
 											</Typography>
 										</Box>
 
-										{item.badge && (
+										{item.badge !== undefined && (
 											<Chip
 												label={item.badge}
 												size="small"

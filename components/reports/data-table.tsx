@@ -17,13 +17,14 @@ import {
 	TableSortLabel,
 	Typography,
 } from "@mui/material";
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 
 export interface Column<T> {
 	id: keyof T;
 	label: string;
 	align?: "left" | "center" | "right";
 	format?: (value: T[keyof T]) => string;
+	render?: (value: T[keyof T], row: T) => ReactNode;
 	sortable?: boolean;
 }
 
@@ -33,6 +34,7 @@ interface DataTableProps<T extends Record<string, unknown>> {
 	data: T[];
 	onExport?: () => void;
 	exportLabel?: string;
+	onRowClick?: (row: T) => void;
 }
 
 export function DataTable<T extends Record<string, unknown>>({
@@ -41,6 +43,7 @@ export function DataTable<T extends Record<string, unknown>>({
 	data,
 	onExport,
 	exportLabel = "Export to Excel",
+	onRowClick,
 }: DataTableProps<T>) {
 	const [page, setPage] = useState(0);
 	const [rowsPerPage, setRowsPerPage] = useState(10);
@@ -157,6 +160,8 @@ export function DataTable<T extends Record<string, unknown>>({
 										// biome-ignore lint/suspicious/noArrayIndexKey: Using index as key is acceptable here because the data is static and not reordered.
 										key={index}
 										hover
+										onClick={onRowClick ? () => onRowClick(row) : undefined}
+										sx={onRowClick ? { cursor: "pointer" } : undefined}
 									>
 										{columns.map((column) => {
 											const value = row[column.id];
@@ -165,9 +170,11 @@ export function DataTable<T extends Record<string, unknown>>({
 													key={String(column.id)}
 													align={column.align || "left"}
 												>
-													{column.format
-														? column.format(value)
-														: String(value ?? "")}
+													{column.render
+														? column.render(value, row)
+														: column.format
+															? column.format(value)
+															: String(value ?? "")}
 												</TableCell>
 											);
 										})}
