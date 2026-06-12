@@ -50,9 +50,6 @@ export async function fetchReport<T>(
 	});
 
 	const result = await response.json();
-
-	console.log("response", response.status);
-	console.log("result", result);
 	return result.data;
 }
 

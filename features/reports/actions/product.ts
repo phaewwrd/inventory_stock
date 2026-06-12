@@ -14,7 +14,6 @@ export async function fetchProductReport(
 	customEndDate?: string,
 ): Promise<ActionResult<ProductReportResponse>> {
 	try {
-		console.log("getDateRangeFromPreset", typeof getDateRangeFromPreset);
 		let dateRange: DateRange;
 
 		if (preset === "custom" && customStartDate && customEndDate) {

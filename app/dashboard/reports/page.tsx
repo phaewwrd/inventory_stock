@@ -202,13 +202,6 @@ export default function ReportsPage() {
 	const expiryQuery = useExpiryReport(expiryFilter);
 	const receivedQuery = useStockReceivedReport(receivedFilter);
 	const issuedQuery = useStockIssuedReport(issuedFilter);
-	console.log("product data", productQuery);
-	console.log("expiry data", expiryQuery.data);
-	console.log("received data", receivedQuery.data);
-	console.log("issued data", issuedQuery.data);
-	console.log("product error", productQuery.error);
-	console.log("received error", receivedQuery.error);
-	console.log("issued error", issuedQuery.error);
 
 	return (
 		<main className="flex-1 overflow-y-auto px-8 py-7">

@@ -91,27 +91,21 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 
 	return (
 		/* Backdrop */
-
-		<Dialog open onClose={onClose} maxWidth="sm" fullWidth>
+		<Dialog open onClose={onClose} maxWidth="xs" fullWidth>
 			{/* Panel */}
-			<div
-				className="w-full max-w-md rounded-2xl"
-				style={{
-					background: "#1e1e1e",
-					border: "1px solid #2e2e2e",
-					boxShadow: "0 32px 64px rgba(0,0,0,0.6)",
-				}}
-			>
+			<div className="w-full max-w-md rounded-2xl ">
 				{/* Header */}
 				<div
-					className="flex items-center justify-between px-6 py-4"
-					style={{ borderBottom: "1px solid #2a2a2a" }}
+					className="flex items-center justify-between px-6 py-4 bg-[#185FA5] text-white"
+					style={{
+						borderBottom: "1px solid #2a2a2a",
+					}}
 				>
 					<div>
-						<h2 className="text-base font-semibold text-white">
+						<h2 className="text-base font-semibold">
 							{isCreate ? "Create new user" : "Edit user"}
 						</h2>
-						<p className="text-xs mt-0.5" style={{ color: "#666" }}>
+						<p className="text-xs mt-0.5" style={{ color: "#ccc" }}>
 							{isCreate
 								? "Add a team member and assign their role"
 								: "Update profile details and permissions"}
@@ -122,12 +116,10 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 						type="button"
 						onClick={onClose}
 						aria-label="Close modal"
-						className="flex items-center justify-center rounded-lg text-sm font-medium"
+						className="flex items-center justify-center rounded-lg text-sm font-medium text-white hover:bg-[#1e3a8a] transition-colors"
 						style={{
 							width: 32,
 							height: 32,
-							background: "#2a2a2a",
-							color: "#888",
 							border: "1px solid #333",
 						}}
 					>
@@ -222,8 +214,10 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 									className="flex items-center gap-3 rounded-xl px-4 py-3 cursor-pointer transition-colors"
 									style={{
 										background:
-											authRole === r.value ? "rgba(29,78,216,0.18)" : "#1a1a1a",
-										border: `1.5px solid ${authRole === r.value ? "#1d4ed8" : "#2e2e2e"}`,
+											authRole === r.value ? "rgba(37,99,235,0.12)" : "#fff",
+										border: `1.5px solid ${
+											authRole === r.value ? "#2563eb" : "#e5e7eb"
+										}`,
 									}}
 								>
 									<input
@@ -236,11 +230,24 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 										className="accent-blue-600"
 									/>
 									<div>
-										<div className="text-sm font-medium text-white">
-											{r.label}
-										</div>
-										<div className="text-xs" style={{ color: "#666" }}>
-											{r.desc}
+										<div>
+											<div
+												className="text-sm font-medium"
+												style={{
+													color: authRole === r.value ? "#2563eb" : "inherit",
+												}}
+											>
+												{r.label}
+											</div>
+
+											<div
+												className="text-xs"
+												style={{
+													color: authRole === r.value ? "#60a5fa" : "#666",
+												}}
+											>
+												{r.desc}
+											</div>
 										</div>
 									</div>
 								</label>
@@ -256,7 +263,7 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 							onClick={onClose}
 							className="flex-1 rounded-xl py-2.5 text-sm font-medium"
 							style={{
-								background: "#2a2a2a",
+								background: "background.paper",
 								color: "#aaa",
 								border: "1px solid #333",
 							}}
@@ -268,7 +275,7 @@ export function UserModal({ mode, user, onClose, onSuccess }: UserModalProps) {
 							type="submit"
 							disabled={loading}
 							className="flex-1 rounded-xl py-2.5 text-sm font-semibold text-white disabled:opacity-60 transition-opacity"
-							style={{ background: loading ? "#1e3a8a" : "#1d4ed8" }}
+							style={{ background: loading ? "#1e3a8a" : "#185FA5" }}
 						>
 							{loading
 								? isCreate
