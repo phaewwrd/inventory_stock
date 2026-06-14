@@ -3,7 +3,7 @@ import "server-only";
 import { headers } from "next/headers";
 
 import { auth } from "@/lib/auth";
-import type { UserRole } from "@/features/users/types";
+import type { AuthRole } from "@/features/users/types";
 
 /** Resolved session shape returned by Better Auth's getSession. */
 type AuthSession = NonNullable<
@@ -28,14 +28,14 @@ export class ForbiddenError extends Error {
  * @throws ForbiddenError when there is no session or the role is not allowed.
  */
 export async function requireRole(
-  allowedRoles: Array<UserRole>,
+  allowedRoles: Array<AuthRole>,
 ): Promise<AuthSession> {
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session) {
     throw new ForbiddenError("You must be signed in.");
   }
 
-  const role = session.user.role as UserRole;
+  const role = session.user.authRole as AuthRole;
   if (!allowedRoles.includes(role)) {
     throw new ForbiddenError();
   }
