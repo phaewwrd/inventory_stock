@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import Button from "@mui/material/Button";
+import Chip from "@mui/material/Chip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -114,17 +115,34 @@ export function ApprovalsTable({ items }: ApprovalsTableProps) {
         ),
       },
       {
+        id: "type",
+        label: "Type",
+        render: (row) =>
+          row.movementType === "receive" ? (
+            <Chip label="Receive" size="small" color="success" variant="outlined" />
+          ) : (
+            <Chip label="Cut" size="small" color="error" variant="outlined" />
+          ),
+      },
+      {
         id: "quantity",
         label: "Quantity",
         align: "right",
-        render: (row) => (
-          <Typography
-            variant="body2"
-            sx={{ fontWeight: 600, color: "success.main" }}
-          >
-            +{row.quantity.toLocaleString()} {row.unit}
-          </Typography>
-        ),
+        render: (row) => {
+          const isReceive = row.movementType === "receive";
+          return (
+            <Typography
+              variant="body2"
+              sx={{
+                fontWeight: 600,
+                color: isReceive ? "success.main" : "error.main",
+              }}
+            >
+              {isReceive ? "+" : "−"}
+              {row.quantity.toLocaleString()} {row.unit}
+            </Typography>
+          );
+        },
       },
       {
         id: "lot",

@@ -53,7 +53,10 @@ function RowActions({
         </IconButton>
       </Tooltip>
       <Tooltip title="Cut stock">
-        <IconButton size="small" href={ROUTES.DASHBOARD.STOCK.CUT}>
+        <IconButton
+          size="small"
+          href={`${ROUTES.DASHBOARD.STOCK.CUT}?productId=${productId}`}
+        >
           <RemoveIcon fontSize="small" />
         </IconButton>
       </Tooltip>

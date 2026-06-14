@@ -34,6 +34,18 @@ export type ReceiveFormField =
   | "expiryDate"
   | "unitCost";
 
+// ─── Cut ───────────────────────────────────────────────────────────────────────
+
+export interface CutInput {
+  productId: string;
+  quantity: number;
+  reason: string | null;
+  referenceNo: string | null;
+  remark: string | null;
+}
+
+export type CutFormField = "productId" | "quantity";
+
 // ─── Approvals ─────────────────────────────────────────────────────────────────
 
 export interface PendingMovement {

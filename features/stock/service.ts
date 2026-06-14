@@ -1,14 +1,16 @@
 import "server-only";
 
 import {
-  approveReceiveTx,
+  approveMovementTx,
   findProductBalance,
+  insertPendingCut,
   insertPendingReceive,
   listPendingMovements,
   rejectMovementTx,
   type ReviewOutcome,
 } from "./repository";
 import type {
+  CutInput,
   PendingListParams,
   PendingMovementList,
   ProductPickerOption,
@@ -19,7 +21,7 @@ import type {
 
 // ─── Receive form prefill ──────────────────────────────────────────────────────
 
-export async function getProductForReceiveService(
+export async function getProductForPickerService(
   productId: string,
 ): Promise<ProductPickerOption | null> {
   return findProductBalance(productId);
@@ -74,6 +76,47 @@ export async function submitReceiveService(
   }
 }
 
+// ─── Submit cut ────────────────────────────────────────────────────────────────
+
+export async function submitCutService(
+  input: CutInput,
+  userId: string,
+): Promise<StockActionResult<{ movementId: string }>> {
+  if (!input.productId) {
+    return { success: false, error: "กรุณาเลือกสินค้า", field: "productId" };
+  }
+  if (!Number.isInteger(input.quantity) || input.quantity <= 0) {
+    return {
+      success: false,
+      error: "จำนวนต้องเป็นจำนวนเต็มมากกว่า 0",
+      field: "quantity",
+    };
+  }
+
+  // Soft check at submit time; approval re-validates authoritatively.
+  const product = await findProductBalance(input.productId);
+  if (!product) {
+    return { success: false, error: "ไม่พบสินค้า", field: "productId" };
+  }
+  if (input.quantity > product.totalBalance) {
+    return {
+      success: false,
+      error: `สต็อกไม่พอ คงเหลือ ${product.totalBalance.toLocaleString()}`,
+      field: "quantity",
+    };
+  }
+
+  try {
+    const movementId = await insertPendingCut(input, userId);
+    return { success: true, data: { movementId } };
+  } catch (err) {
+    return {
+      success: false,
+      error: err instanceof Error ? err.message : "ส่งคำขอไม่สำเร็จ",
+    };
+  }
+}
+
 // ─── Approvals ─────────────────────────────────────────────────────────────────
 
 export async function getPendingApprovalsService(
@@ -90,6 +133,8 @@ function outcomeToResult(outcome: ReviewOutcome): StockActionResult {
       return { success: false, error: "ไม่พบรายการนี้" };
     case "not_pending":
       return { success: false, error: "รายการนี้ถูกดำเนินการไปแล้ว" };
+    case "insufficient":
+      return { success: false, error: "สต็อกไม่พอสำหรับการตัดจำนวนนี้" };
   }
 }
 
@@ -98,7 +143,7 @@ export async function approveMovementService(
   reviewerId: string,
 ): Promise<StockActionResult> {
   try {
-    const outcome = await approveReceiveTx(movementId, reviewerId);
+    const outcome = await approveMovementTx(movementId, reviewerId);
     return outcomeToResult(outcome);
   } catch (err) {
     return {

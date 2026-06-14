@@ -9,9 +9,11 @@ import { searchProductsForPicker } from "./repository";
 import {
   approveMovementService,
   rejectMovementService,
+  submitCutService,
   submitReceiveService,
 } from "./service";
 import type {
+  CutInput,
   ProductPickerOption,
   ReceiveInput,
   StockActionResult,
@@ -51,6 +53,29 @@ export async function submitReceiveAction(
   }
 
   const result = await submitReceiveService(input, userId);
+  if (result.success) {
+    revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
+  }
+  return result;
+}
+
+// ─── Submit cut (any logged-in user) ───────────────────────────────────────────
+
+export async function submitCutAction(
+  input: CutInput,
+): Promise<StockActionResult<{ movementId: string }>> {
+  let userId: string;
+  try {
+    const session = await requireRole([...ALL_ROLES]);
+    userId = session.user.id;
+  } catch (err) {
+    if (err instanceof ForbiddenError) {
+      return { success: false, error: "คุณไม่มีสิทธิ์ทำรายการนี้" };
+    }
+    throw err;
+  }
+
+  const result = await submitCutService(input, userId);
   if (result.success) {
     revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
   }
