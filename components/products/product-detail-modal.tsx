@@ -312,7 +312,7 @@ export function ProductDetailModal({
                           {formatMovementQty(m)}
                         </TableCell>
                         <TableCell align="right">
-                          {m.balanceAfter.toLocaleString()}
+                          {m.balanceAfter?.toLocaleString() ?? "—"}
                         </TableCell>
                         <TableCell>{m.createdByName ?? "System"}</TableCell>
                       </TableRow>

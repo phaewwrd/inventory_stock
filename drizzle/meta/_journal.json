@@ -15,6 +15,13 @@
       "when": 1781413503921,
       "tag": "0001_curvy_giant_man",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781416001135,
+      "tag": "0002_cute_victor_mancha",
+      "breakpoints": true
     }
   ]
 }
