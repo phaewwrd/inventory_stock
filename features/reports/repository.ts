@@ -277,7 +277,9 @@ export async function getStockIssuedReportData(
 		sku: row.sku,
 		lotNo: row.lotNo,
 		quantity: row.quantity,
-		balanceAfter: row.balanceAfter,
+		// Approved issues always carry a balance; coalesce to satisfy the
+		// now-nullable column (pending movements are not "issued").
+		balanceAfter: row.balanceAfter ?? 0,
 		unit: row.unit,
 		remark: row.remark,
 		createdBy: row.createdBy,

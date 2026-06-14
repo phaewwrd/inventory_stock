@@ -67,7 +67,7 @@ export interface ProductMovementRow {
   id: string;
   movementType: "receive" | "issue" | "adjustment";
   quantity: number;
-  balanceAfter: number;
+  balanceAfter: number | null; // null while the movement is pending
   lotNo: string | null;
   remark: string | null;
   createdByName: string | null;
