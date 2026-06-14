@@ -8,6 +8,12 @@ export const movementTypeEnum = pgEnum("movement_type", [
 	"adjustment",
 ]);
 
+export const movementStatusEnum = pgEnum("movement_status", [
+	"pending",
+	"approved",
+	"unapproved",
+]);
+
 export const stockMovements = pgTable("stock_movements", {
 	id: text("id").primaryKey(),
 
@@ -24,6 +30,8 @@ export const stockMovements = pgTable("stock_movements", {
 	balanceAfter: integer("balance_after").notNull(),
 
 	remark: text("remark"),
+
+	status: movementStatusEnum("status").notNull().default("pending"),
 
 	createdBy: text("created_by").references(() => user.id),
 

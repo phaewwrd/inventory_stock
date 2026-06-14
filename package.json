@@ -10,7 +10,7 @@
 		"lint": "biome check .",
 		"format": "biome check --write .",
 		"typecheck": "tsc --noEmit",
-		"db:generate": "drizzle-kit generate --out ./drizzle",
+		"db:generate": "drizzle-kit generate --schema=./app/db/schema.ts --dialect=postgresql --out=./drizzle",
 		"db:push": "drizzle-kit push",
 		"db:seed": "dotenv -e .env -- tsx app/db/seed.ts"
 	},
