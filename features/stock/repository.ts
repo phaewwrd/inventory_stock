@@ -13,6 +13,9 @@ import { paginate } from "@/lib/query/paginate";
 
 import type {
   CutInput,
+  MovementLogList,
+  MovementLogParams,
+  MovementLogRow,
   PendingListParams,
   PendingMovement,
   PendingMovementList,
@@ -189,6 +192,92 @@ export async function listPendingMovements(
         .select({ value: count() })
         .from(stockMovements)
         .where(eq(stockMovements.status, "pending"));
+      return value;
+    },
+  });
+}
+
+// ─── Movement log ──────────────────────────────────────────────────────────────
+
+function buildMovementSearch(q: string) {
+  const trimmed = q.trim();
+  if (!trimmed) return undefined;
+  const pattern = `%${trimmed}%`;
+  return or(
+    ilike(products.sku, pattern),
+    ilike(products.name, pattern),
+    ilike(productLots.lotNo, pattern),
+    ilike(stockMovements.reqLotNo, pattern),
+    ilike(stockMovements.referenceNo, pattern),
+  );
+}
+
+export async function listMovements(
+  params: MovementLogParams,
+): Promise<MovementLogList> {
+  const typeCondition =
+    params.type === "all"
+      ? undefined
+      : eq(stockMovements.movementType, params.type);
+  const statusCondition =
+    params.status === "all"
+      ? undefined
+      : eq(stockMovements.status, params.status);
+  const whereCondition = and(
+    buildMovementSearch(params.q),
+    typeCondition,
+    statusCondition,
+  );
+
+  return paginate<MovementLogRow>({
+    page: params.page,
+    limit: params.limit,
+    listQuery: async ({ limit, offset }) => {
+      const rows = await db
+        .select({
+          id: stockMovements.id,
+          createdAt: stockMovements.createdAt,
+          movementType: stockMovements.movementType,
+          status: stockMovements.status,
+          productSku: products.sku,
+          productName: products.name,
+          unit: products.unit,
+          lotNo: productLots.lotNo,
+          reqLotNo: stockMovements.reqLotNo,
+          quantity: stockMovements.quantity,
+          balanceAfter: stockMovements.balanceAfter,
+          requestedByName: user.name,
+        })
+        .from(stockMovements)
+        .innerJoin(products, eq(products.id, stockMovements.productId))
+        .leftJoin(productLots, eq(productLots.id, stockMovements.lotId))
+        .leftJoin(user, eq(user.id, stockMovements.createdBy))
+        .where(whereCondition)
+        .orderBy(desc(stockMovements.createdAt))
+        .limit(limit)
+        .offset(offset);
+
+      return rows.map((row) => ({
+        id: row.id,
+        createdAt: row.createdAt.toISOString(),
+        movementType: row.movementType,
+        status: row.status,
+        productSku: row.productSku,
+        productName: row.productName,
+        unit: row.unit,
+        lotNo: row.lotNo ?? row.reqLotNo ?? null,
+        quantity: row.quantity,
+        balanceAfter: row.balanceAfter ?? null,
+        requestedByName: row.requestedByName ?? null,
+      }));
+    },
+    countQuery: async () => {
+      const [{ value }] = await db
+        .select({ value: count() })
+        .from(stockMovements)
+        .innerJoin(products, eq(products.id, stockMovements.productId))
+        .leftJoin(productLots, eq(productLots.id, stockMovements.lotId))
+        .where(whereCondition);
       return value;
     },
   });

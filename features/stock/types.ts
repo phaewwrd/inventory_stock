@@ -70,6 +70,48 @@ export interface PendingListParams {
   limit: number;
 }
 
+// ─── Movement log ──────────────────────────────────────────────────────────────
+
+export type MovementTypeFilter = "all" | "receive" | "issue";
+export type MovementStatusFilter = "all" | MovementStatus;
+
+export const MOVEMENT_TYPE_FILTERS = [
+  "all",
+  "receive",
+  "issue",
+] as const satisfies Array<MovementTypeFilter>;
+
+export const MOVEMENT_STATUS_FILTERS = [
+  "all",
+  "pending",
+  "approved",
+  "unapproved",
+] as const satisfies Array<MovementStatusFilter>;
+
+export interface MovementLogRow {
+  id: string;
+  createdAt: string; // ISO
+  movementType: MovementType;
+  status: MovementStatus;
+  productSku: string;
+  productName: string;
+  unit: string;
+  lotNo: string | null;
+  quantity: number;
+  balanceAfter: number | null;
+  requestedByName: string | null;
+}
+
+export type MovementLogList = PaginatedResult<MovementLogRow>;
+
+export interface MovementLogParams {
+  q: string;
+  type: MovementTypeFilter;
+  status: MovementStatusFilter;
+  page: number;
+  limit: number;
+}
+
 // ─── Action result ───────────────────────────────────────────────────────────
 
 export type StockActionResult<T = void> =

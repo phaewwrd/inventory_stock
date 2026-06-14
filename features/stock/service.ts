@@ -5,12 +5,15 @@ import {
   findProductBalance,
   insertPendingCut,
   insertPendingReceive,
+  listMovements,
   listPendingMovements,
   rejectMovementTx,
   type ReviewOutcome,
 } from "./repository";
 import type {
   CutInput,
+  MovementLogList,
+  MovementLogParams,
   PendingListParams,
   PendingMovementList,
   ProductPickerOption,
@@ -123,6 +126,14 @@ export async function getPendingApprovalsService(
   params: PendingListParams,
 ): Promise<PendingMovementList> {
   return listPendingMovements(params);
+}
+
+// ─── Movement log ──────────────────────────────────────────────────────────────
+
+export async function getMovementLogService(
+  params: MovementLogParams,
+): Promise<MovementLogList> {
+  return listMovements(params);
 }
 
 function outcomeToResult(outcome: ReviewOutcome): StockActionResult {

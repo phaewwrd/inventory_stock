@@ -3,7 +3,6 @@
 import { useMemo, useState } from "react";
 
 import Button from "@mui/material/Button";
-import Chip from "@mui/material/Chip";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
 import DialogContent from "@mui/material/DialogContent";
@@ -24,6 +23,8 @@ import {
 } from "@/features/stock/actions";
 import type { PendingMovement } from "@/features/stock/types";
 import { formatDisplayDate } from "@/lib/util/format-date-time";
+
+import { MovementTypeChip } from "./movement-type-chip";
 
 interface ApprovalsTableProps {
   items: PendingMovement[];
@@ -117,12 +118,7 @@ export function ApprovalsTable({ items }: ApprovalsTableProps) {
       {
         id: "type",
         label: "Type",
-        render: (row) =>
-          row.movementType === "receive" ? (
-            <Chip label="Receive" size="small" color="success" variant="outlined" />
-          ) : (
-            <Chip label="Cut" size="small" color="error" variant="outlined" />
-          ),
+        render: (row) => <MovementTypeChip type={row.movementType} />,
       },
       {
         id: "quantity",
