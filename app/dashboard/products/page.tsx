@@ -71,6 +71,9 @@ export default async function ProductsPage({
     redirect(ROUTES.LOGIN);
   }
 
+  const canAddProduct =
+    session.user.role === "OWNER" || session.user.role === "STOCK_MANAGER";
+
   const params = parseProductListParams(await searchParams);
   const { items, total, page, limit } = await getProductListService(params);
 
@@ -98,14 +101,16 @@ export default async function ProductsPage({
               Export
             </Button>
 
-            <Button
-              variant="contained"
-              color="primary"
-              startIcon={<AddIcon />}
-              href={`${ROUTES.DASHBOARD.PRODUCTS}/new`}
-            >
-              Add product
-            </Button>
+            {canAddProduct && (
+              <Button
+                variant="contained"
+                color="primary"
+                startIcon={<AddIcon />}
+                href={ROUTES.DASHBOARD.PRODUCTS_ADD}
+              >
+                Add product
+              </Button>
+            )}
           </Box>
         }
       />

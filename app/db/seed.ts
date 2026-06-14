@@ -318,6 +318,7 @@ async function seed() {
 						productId,
 						lotId: lot.id,
 						movementType: "receive",
+						status: "approved",
 						quantity: lot.quantity,
 						balanceAfter: balance,
 						remark: "Initial seed receive",
