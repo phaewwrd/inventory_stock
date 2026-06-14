@@ -330,14 +330,22 @@ export function ProductDetailModal({
         <Button
           color="error"
           variant="outlined"
-          href={ROUTES.DASHBOARD.STOCK.CUT}
+          href={
+            productId
+              ? `${ROUTES.DASHBOARD.STOCK.CUT}?productId=${productId}`
+              : ROUTES.DASHBOARD.STOCK.CUT
+          }
         >
           Cut stock
         </Button>
         <Button
           color="primary"
           variant="contained"
-          href={ROUTES.DASHBOARD.STOCK.RECEIVE}
+          href={
+            productId
+              ? `${ROUTES.DASHBOARD.STOCK.RECEIVE}?productId=${productId}`
+              : ROUTES.DASHBOARD.STOCK.RECEIVE
+          }
         >
           Receive stock
         </Button>
