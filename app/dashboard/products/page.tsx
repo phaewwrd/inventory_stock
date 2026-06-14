@@ -72,7 +72,8 @@ export default async function ProductsPage({
   }
 
   const canAddProduct =
-    session.user.role === "OWNER" || session.user.role === "STOCK_MANAGER";
+    session.user.authRole === "OWNER" ||
+    session.user.authRole === "STOCK_MANAGER";
 
   const params = parseProductListParams(await searchParams);
   const { items, total, page, limit } = await getProductListService(params);
