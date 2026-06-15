@@ -8,31 +8,31 @@ import { getCategoryOptionsService } from "@/features/products/service";
 import { ForbiddenError, requireRole } from "@/lib/auth-guard";
 
 export const metadata: Metadata = {
-  title: "Add product | StockMS",
-  description: "Create a new product in the catalog.",
+	title: "Add product | StockMS",
+	description: "Create a new product in the catalog.",
 };
 
 export default async function AddProductPage() {
-  try {
-    await requireRole(["OWNER", "STOCK_MANAGER"]);
-  } catch (error) {
-    if (error instanceof ForbiddenError) {
-      redirect(ROUTES.DASHBOARD.PRODUCTS);
-    }
-    throw error;
-  }
+	try {
+		await requireRole(["OWNER", "STOCK_MANAGER"]);
+	} catch (error) {
+		if (error instanceof ForbiddenError) {
+			redirect(ROUTES.DASHBOARD.PRODUCTS);
+		}
+		throw error;
+	}
 
-  const categories = await getCategoryOptionsService();
+	const categories = await getCategoryOptionsService();
 
-  return (
-    <main className="flex-1 overflow-y-auto px-8 py-7">
-      <HeaderPage
-        title="Add product"
-        description="Create a new product in the catalog"
-        showDashboardBtn={false}
-      />
+	return (
+		<main className="flex-1 overflow-y-auto px-8 py-7">
+			<HeaderPage
+				title="Add product"
+				description="Create a new product in the catalog"
+				showDashboardBtn={false}
+			/>
 
-      <ProductForm categories={categories} />
-    </main>
-  );
+			<ProductForm categories={categories} />
+		</main>
+	);
 }

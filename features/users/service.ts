@@ -87,6 +87,7 @@ export async function updateUserService(
 			name: input.name,
 			email: input.email,
 			role: input.role,
+			authRole: input.authRole,
 		});
 		if (!updated) return { success: false, error: "User not found." };
 		return { success: true, data: updated };

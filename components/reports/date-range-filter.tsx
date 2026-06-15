@@ -23,7 +23,7 @@ const presetButtons: { value: DateRangePreset; label: string }[] = [
 	{ value: "thisMonth", label: "This Month" },
 	{ value: "lastMonth", label: "Last Month" },
 	{ value: "thisYear", label: "This Year" },
-	{ value: "custom", label: "Custom" },
+	// { value: "custom", label: "Custom" },
 ];
 
 export function DateRangeFilter({
@@ -32,7 +32,6 @@ export function DateRangeFilter({
 	customStartDate,
 	customEndDate,
 	onCustomDateChange,
-	onApply,
 }: DateRangeFilterProps) {
 	const startDateValue = customStartDate ? dayjs(customStartDate) : null;
 	const endDateValue = customEndDate ? dayjs(customEndDate) : null;
@@ -91,7 +90,7 @@ export function DateRangeFilter({
 						</LocalizationProvider>
 					)}
 
-					<Button
+					{/* <Button
 						variant="contained"
 						onClick={onApply}
 						disabled={
@@ -99,7 +98,7 @@ export function DateRangeFilter({
 						}
 					>
 						Apply Filter
-					</Button>
+					</Button> */}
 				</Stack>
 			</CardContent>
 		</Card>

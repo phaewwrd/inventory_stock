@@ -12,6 +12,7 @@ import {
 	Typography,
 } from "@mui/material";
 import dayjs from "dayjs";
+import { useState } from "react";
 import { HeaderPage } from "@/components/header-page";
 import {
 	BarChartComponent,
@@ -22,6 +23,7 @@ import {
 import type { Column } from "@/components/reports/data-table";
 import { DataTable } from "@/components/reports/data-table";
 import { DateRangeFilter } from "@/components/reports/date-range-filter";
+import { ExpiryProductDetailModal } from "@/components/reports/expiry-product-detail-modal";
 import { KPIGrid } from "@/components/reports/kpi-card";
 import {
 	useExpiryReport,
@@ -322,6 +324,8 @@ function ProductReportTab({
 	onPresetChange,
 	onCustomDateChange,
 }: ProductReportTabProps) {
+	const [openProductId, setOpenProductId] = useState<string | null>(null);
+
 	const productColumns: Column<SerializedProductReport>[] = [
 		{ id: "productName", label: "Product Name" },
 		{ id: "sku", label: "SKU" },
@@ -415,9 +419,16 @@ function ProductReportTab({
 				title="Product Details"
 				columns={productColumns}
 				data={report.items}
+				onRowClick={(row) => setOpenProductId(String(row.productId))}
 				onExport={() =>
 					exportProductReportToExcel(report.items, report.dateRange)
 				}
+			/>
+
+			<ExpiryProductDetailModal
+				productId={openProductId}
+				open={openProductId !== null}
+				onClose={() => setOpenProductId(null)}
 			/>
 		</Stack>
 	);
@@ -426,6 +437,8 @@ function ProductReportTab({
 // ─── Expiry Report Tab ────────────────────────────────────────────────────────
 
 function ExpiryReportTab({ report }: { report: ExpiryReportResponse }) {
+	const [openProductId, setOpenProductId] = useState<string | null>(null);
+
 	const expiryColumns: Column<SerializedExpiryReport>[] = [
 		{ id: "lotNo", label: "Lot No" },
 		{ id: "productName", label: "Product Name" },
@@ -471,40 +484,49 @@ function ExpiryReportTab({ report }: { report: ExpiryReportResponse }) {
 	}));
 
 	return (
-		<Stack spacing={3}>
-			<KPIGrid kpis={report.kpis} />
+		<>
+			<Stack spacing={3}>
+				<KPIGrid kpis={report.kpis} />
 
-			<Box
-				sx={{
-					display: "grid",
-					gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
-					gap: 2,
-				}}
-			>
-				<ChartCard title="Items by Expiry Status">
-					<PieChartComponent
-						data={statusChartData}
-						colors={["#E24B4A", "#BA7517", "#FFC107", "#639922"]}
-						showLabel={false}
-					/>
-				</ChartCard>
+				<Box
+					sx={{
+						display: "grid",
+						gridTemplateColumns: { xs: "1fr", md: "repeat(2, 1fr)" },
+						gap: 2,
+					}}
+				>
+					<ChartCard title="Items by Expiry Status">
+						<PieChartComponent
+							data={statusChartData}
+							colors={["#E24B4A", "#BA7517", "#FFC107", "#639922"]}
+							showLabel={false}
+						/>
+					</ChartCard>
 
-				<ChartCard title="Value by Expiry Status">
-					<BarChartComponent
-						data={statusValueChartData}
-						xKey="status"
-						bars={[{ key: "value", color: "#185FA5", name: "Value ($)" }]}
-					/>
-				</ChartCard>
-			</Box>
+					<ChartCard title="Value by Expiry Status">
+						<BarChartComponent
+							data={statusValueChartData}
+							xKey="status"
+							bars={[{ key: "value", color: "#185FA5", name: "Value ($)" }]}
+						/>
+					</ChartCard>
+				</Box>
 
-			<DataTable<SerializedExpiryReport>
-				title="Expiry Details"
-				columns={expiryColumns}
-				data={report.items}
-				onExport={() => exportExpiryReportToExcel(report.items)}
+				<DataTable<SerializedExpiryReport>
+					title="Expiry Details"
+					columns={expiryColumns}
+					data={report.items}
+					onRowClick={(row) => setOpenProductId(String(row.productId))}
+					onExport={() => exportExpiryReportToExcel(report.items)}
+				/>
+			</Stack>
+
+			<ExpiryProductDetailModal
+				productId={openProductId}
+				open={openProductId !== null}
+				onClose={() => setOpenProductId(null)}
 			/>
-		</Stack>
+		</>
 	);
 }
 
@@ -520,6 +542,8 @@ function StockReceivedReportTab({
 	onPresetChange,
 	onCustomDateChange,
 }: StockReceivedReportTabProps) {
+	const [openProductId, setOpenProductId] = useState<string | null>(null);
+
 	const receivedColumns: Column<SerializedStockReceivedReport>[] = [
 		{
 			id: "date",
@@ -606,9 +630,16 @@ function StockReceivedReportTab({
 				title="Stock Received Transactions"
 				columns={receivedColumns}
 				data={report.items}
+				onRowClick={(row) => setOpenProductId(String(row.productId))}
 				onExport={() =>
 					exportStockReceivedReportToExcel(report.items, report.dateRange)
 				}
+			/>
+
+			<ExpiryProductDetailModal
+				productId={openProductId}
+				open={openProductId !== null}
+				onClose={() => setOpenProductId(null)}
 			/>
 		</Stack>
 	);
@@ -626,6 +657,8 @@ function StockIssuedReportTab({
 	onPresetChange,
 	onCustomDateChange,
 }: StockIssuedReportTabProps) {
+	const [openProductId, setOpenProductId] = useState<string | null>(null);
+
 	const issuedColumns: Column<SerializedStockIssuedReport>[] = [
 		{
 			id: "date",
@@ -705,9 +738,16 @@ function StockIssuedReportTab({
 				title="Stock Issued Transactions"
 				columns={issuedColumns}
 				data={report.items}
+				onRowClick={(row) => setOpenProductId(String(row.productId))}
 				onExport={() =>
 					exportStockIssuedReportToExcel(report.items, report.dateRange)
 				}
+			/>
+
+			<ExpiryProductDetailModal
+				productId={openProductId}
+				open={openProductId !== null}
+				onClose={() => setOpenProductId(null)}
 			/>
 		</Stack>
 	);
