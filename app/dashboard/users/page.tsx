@@ -20,7 +20,7 @@ import { auth } from "@/lib/auth";
 export const metadata: Metadata = {
 	title: "User Management | StockMS",
 	description:
-		"จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ — create, edit, disable accounts and assign roles.",
+		"create, edit, disable accounts and assign roles.",
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
@@ -46,7 +46,7 @@ export default async function UsersPage() {
 		<main className="flex-1 overflow-y-auto px-8 py-7">
 			<HeaderPage
 				title="User Management"
-				description="จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ"
+				description="create, edit, disable accounts and assign roles."
 			/>
 
 			<Stack spacing={3}>
