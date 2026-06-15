@@ -1,5 +1,7 @@
 import "server-only";
 
+import { randomUUID } from "node:crypto";
+
 import {
   and,
   asc,
@@ -29,11 +31,13 @@ import { paginate } from "@/lib/query/paginate";
 
 import { NEAR_EXPIRY_DAYS } from "./types";
 import type {
+  CategoryOption,
   ProductListItem,
   ProductListParams,
   ProductListResult,
   ProductLotRow,
   ProductMovementRow,
+  ProductRecord,
   ProductStatus,
 } from "./types";
 
@@ -253,19 +257,6 @@ export async function listProducts(
 
 // ─── Detail queries ──────────────────────────────────────────────────────────
 
-export interface ProductRecord {
-  id: string;
-  sku: string;
-  name: string;
-  unit: string;
-  size: string | null;
-  categoryName: string | null;
-  minimumStock: number;
-  latestCost: string | null;
-  note: string | null;
-  isActive: boolean;
-}
-
 export async function findProductById(
   id: string,
 ): Promise<ProductRecord | null> {
@@ -350,6 +341,56 @@ export async function findRecentMovements(
     createdByName: row.createdByName ?? null,
     createdAt: row.createdAt.toISOString(),
   }));
+}
+
+// ─── Create-product queries ──────────────────────────────────────────────────
+
+/** All categories as {id, name} lookup options, ordered by name. */
+export async function findAllCategories(): Promise<CategoryOption[]> {
+  const rows = await db
+    .select({ id: categories.id, name: categories.productname })
+    .from(categories)
+    .orderBy(asc(categories.productname));
+
+  return rows;
+}
+
+/**
+ * Next available SKU in the `FD####` series.
+ * Finds the highest numeric suffix among `FD<digits>` SKUs, increments by one,
+ * and zero-pads to at least 4 digits (e.g. "FD0041", or "FD10000" past 9999).
+ */
+export async function generateNextSku(): Promise<string> {
+  const [row] = await db
+    .select({
+      maxNumber: sql<
+        number | null
+      >`MAX(CAST(SUBSTRING(${products.sku} FROM 3) AS INTEGER))`,
+    })
+    .from(products)
+    .where(sql`${products.sku} ~ '^FD[0-9]+$'`);
+
+  const nextNumber = (row?.maxNumber ?? 0) + 1;
+  return `FD${String(nextNumber).padStart(4, "0")}`;
+}
+
+export interface InsertProductRow {
+  sku: string;
+  categoryId: string;
+  name: string;
+  unit: string;
+  size: string | null;
+  latestCost: string | null;
+  minimumStock: number;
+  isActive: boolean;
+  note: string | null;
+}
+
+/** Inserts a product and returns its generated id. */
+export async function insertProduct(row: InsertProductRow): Promise<string> {
+  const id = randomUUID();
+  await db.insert(products).values({ id, ...row });
+  return id;
 }
 
 // ─── Status helper exposed for service consumers ────────────────────────────

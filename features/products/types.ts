@@ -67,7 +67,7 @@ export interface ProductMovementRow {
   id: string;
   movementType: "receive" | "issue" | "adjustment";
   quantity: number;
-  balanceAfter: number;
+  balanceAfter: number | null; // null while the movement is pending
   lotNo: string | null;
   remark: string | null;
   createdByName: string | null;
@@ -112,6 +112,56 @@ export const DEFAULT_PRODUCT_LIST_PARAMS: ProductListParams = {
 };
 
 export const NEAR_EXPIRY_DAYS = 30;
+
+// ─── Create product ──────────────────────────────────────────────────────────
+
+export interface CategoryOption {
+  id: string;
+  name: string;
+}
+
+/** Flat product master record (no aggregates/lots). */
+export interface ProductRecord {
+  id: string;
+  sku: string;
+  name: string;
+  unit: string;
+  size: string | null;
+  categoryName: string | null;
+  minimumStock: number;
+  latestCost: string | null;
+  note: string | null;
+  isActive: boolean;
+}
+
+export interface CreateProductInput {
+  sku: string; // "" => server auto-generates (FD####)
+  name: string;
+  categoryId: string;
+  unit: string;
+  minimumStock: number;
+  size: string | null;
+  latestCost: string | null; // numeric stored as string (Drizzle numeric)
+  note: string | null;
+  isActive: boolean;
+}
+
+/** Form fields that a server error can be attributed to. */
+export type ProductFormField =
+  | "sku"
+  | "name"
+  | "categoryId"
+  | "unit"
+  | "minimumStock"
+  | "latestCost";
+
+/**
+ * Result of a create attempt. `field` (when present) lets the client surface the
+ * message under a specific input; otherwise it's a general error (toast/banner).
+ */
+export type CreateProductResult =
+  | { success: true; data: ProductRecord }
+  | { success: false; error: string; field?: ProductFormField };
 
 // ─── Action result ───────────────────────────────────────────────────────────
 

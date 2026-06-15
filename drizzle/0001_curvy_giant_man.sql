@@ -1,0 +1,2 @@
+CREATE TYPE "public"."movement_status" AS ENUM('pending', 'approved', 'unapproved');--> statement-breakpoint
+ALTER TABLE "stock_movements" ADD COLUMN "status" "movement_status" DEFAULT 'pending' NOT NULL;

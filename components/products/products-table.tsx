@@ -45,12 +45,18 @@ function RowActions({
       onClick={(e) => e.stopPropagation()}
     >
       <Tooltip title="Receive stock">
-        <IconButton size="small" href={ROUTES.DASHBOARD.STOCK.RECEIVE}>
+        <IconButton
+          size="small"
+          href={`${ROUTES.DASHBOARD.STOCK.RECEIVE}?productId=${productId}`}
+        >
           <VerticalAlignBottomIcon fontSize="small" />
         </IconButton>
       </Tooltip>
       <Tooltip title="Cut stock">
-        <IconButton size="small" href={ROUTES.DASHBOARD.STOCK.CUT}>
+        <IconButton
+          size="small"
+          href={`${ROUTES.DASHBOARD.STOCK.CUT}?productId=${productId}`}
+        >
           <RemoveIcon fontSize="small" />
         </IconButton>
       </Tooltip>

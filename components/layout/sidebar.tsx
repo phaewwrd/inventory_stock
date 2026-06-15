@@ -5,6 +5,7 @@ import AssessmentOutlinedIcon from "@mui/icons-material/AssessmentOutlined";
 import ContentCutOutlinedIcon from "@mui/icons-material/ContentCutOutlined";
 import DashboardOutlinedIcon from "@mui/icons-material/DashboardOutlined";
 import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
+import FactCheckOutlinedIcon from "@mui/icons-material/FactCheckOutlined";
 import HistoryOutlinedIcon from "@mui/icons-material/HistoryOutlined";
 import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import PeopleOutlineOutlinedIcon from "@mui/icons-material/PeopleOutlineOutlined";
@@ -32,6 +33,8 @@ function getNavSections(
 	authRole: string | undefined,
 	criticalExpiryCount: number | undefined,
 ): NavSection[] {
+	const canReview = authRole === "OWNER" || authRole === "STOCK_MANAGER";
+
 	return [
 		{
 			label: "MAIN",
@@ -66,6 +69,15 @@ function getNavSections(
 					href: ROUTES.DASHBOARD.STOCK.HISTORY,
 					icon: <HistoryOutlinedIcon fontSize="small" />,
 				},
+				...(canReview
+					? [
+							{
+								name: "Approvals",
+								href: ROUTES.DASHBOARD.STOCK.APPROVALS,
+								icon: <FactCheckOutlinedIcon fontSize="small" />,
+							},
+						]
+					: []),
 			],
 		},
 		{
