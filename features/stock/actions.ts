@@ -7,16 +7,16 @@ import { ForbiddenError, requireRole } from "@/lib/auth-guard";
 
 import { searchProductsForPicker } from "./repository";
 import {
-  approveMovementService,
-  rejectMovementService,
-  submitCutService,
-  submitReceiveService,
+	approveMovementService,
+	rejectMovementService,
+	submitCutService,
+	submitReceiveService,
 } from "./service";
 import type {
-  CutInput,
-  ProductPickerOption,
-  ReceiveInput,
-  StockActionResult,
+	CutInput,
+	ProductPickerOption,
+	ReceiveInput,
+	StockActionResult,
 } from "./types";
 
 const ALL_ROLES = ["OWNER", "STOCK_MANAGER", "STOCK_USER"] as const;
@@ -26,108 +26,108 @@ const PRODUCT_PICKER_LIMIT = 20;
 // ─── Product picker search (any logged-in user) ────────────────────────────────
 
 export async function searchProductsAction(
-  query: string,
+	query: string,
 ): Promise<ProductPickerOption[]> {
-  try {
-    await requireRole([...ALL_ROLES]);
-  } catch {
-    return [];
-  }
-  return searchProductsForPicker(query, PRODUCT_PICKER_LIMIT);
+	try {
+		await requireRole([...ALL_ROLES]);
+	} catch {
+		return [];
+	}
+	return searchProductsForPicker(query, PRODUCT_PICKER_LIMIT);
 }
 
 // ─── Submit receive (any logged-in user) ───────────────────────────────────────
 
 export async function submitReceiveAction(
-  input: ReceiveInput,
+	input: ReceiveInput,
 ): Promise<StockActionResult<{ movementId: string }>> {
-  let userId: string;
-  try {
-    const session = await requireRole([...ALL_ROLES]);
-    userId = session.user.id;
-  } catch (err) {
-    if (err instanceof ForbiddenError) {
-      return { success: false, error: "คุณไม่มีสิทธิ์ทำรายการนี้" };
-    }
-    throw err;
-  }
+	let userId: string;
+	try {
+		const session = await requireRole([...ALL_ROLES]);
+		userId = session.user.id;
+	} catch (err) {
+		if (err instanceof ForbiddenError) {
+			return { success: false, error: "คุณไม่มีสิทธิ์ทำรายการนี้" };
+		}
+		throw err;
+	}
 
-  const result = await submitReceiveService(input, userId);
-  if (result.success) {
-    revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
-  }
-  return result;
+	const result = await submitReceiveService(input, userId);
+	if (result.success) {
+		revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
+	}
+	return result;
 }
 
 // ─── Submit cut (any logged-in user) ───────────────────────────────────────────
 
 export async function submitCutAction(
-  input: CutInput,
+	input: CutInput,
 ): Promise<StockActionResult<{ movementId: string }>> {
-  let userId: string;
-  try {
-    const session = await requireRole([...ALL_ROLES]);
-    userId = session.user.id;
-  } catch (err) {
-    if (err instanceof ForbiddenError) {
-      return { success: false, error: "คุณไม่มีสิทธิ์ทำรายการนี้" };
-    }
-    throw err;
-  }
+	let userId: string;
+	try {
+		const session = await requireRole([...ALL_ROLES]);
+		userId = session.user.id;
+	} catch (err) {
+		if (err instanceof ForbiddenError) {
+			return { success: false, error: "คุณไม่มีสิทธิ์ทำรายการนี้" };
+		}
+		throw err;
+	}
 
-  const result = await submitCutService(input, userId);
-  if (result.success) {
-    revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
-  }
-  return result;
+	const result = await submitCutService(input, userId);
+	if (result.success) {
+		revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
+	}
+	return result;
 }
 
 // ─── Approve / Reject (OWNER + STOCK_MANAGER) ──────────────────────────────────
 
 export async function approveMovementAction(
-  movementId: string,
+	movementId: string,
 ): Promise<StockActionResult> {
-  let reviewerId: string;
-  try {
-    const session = await requireRole([...REVIEW_ROLES]);
-    reviewerId = session.user.id;
-  } catch (err) {
-    if (err instanceof ForbiddenError) {
-      return { success: false, error: "คุณไม่มีสิทธิ์อนุมัติ" };
-    }
-    throw err;
-  }
+	let reviewerId: string;
+	try {
+		const session = await requireRole([...REVIEW_ROLES]);
+		reviewerId = session.user.id;
+	} catch (err) {
+		if (err instanceof ForbiddenError) {
+			return { success: false, error: "คุณไม่มีสิทธิ์อนุมัติ" };
+		}
+		throw err;
+	}
 
-  const result = await approveMovementService(movementId, reviewerId);
-  if (result.success) {
-    revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
-    revalidatePath(ROUTES.DASHBOARD.PRODUCTS);
-  }
-  return result;
+	const result = await approveMovementService(movementId, reviewerId);
+	if (result.success) {
+		revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
+		revalidatePath(ROUTES.DASHBOARD.PRODUCTS);
+	}
+	return result;
 }
 
 export async function rejectMovementAction(
-  movementId: string,
-  rejectReason: string,
+	movementId: string,
+	rejectReason: string,
 ): Promise<StockActionResult> {
-  let reviewerId: string;
-  try {
-    const session = await requireRole([...REVIEW_ROLES]);
-    reviewerId = session.user.id;
-  } catch (err) {
-    if (err instanceof ForbiddenError) {
-      return { success: false, error: "คุณไม่มีสิทธิ์ปฏิเสธรายการ" };
-    }
-    throw err;
-  }
+	let reviewerId: string;
+	try {
+		const session = await requireRole([...REVIEW_ROLES]);
+		reviewerId = session.user.id;
+	} catch (err) {
+		if (err instanceof ForbiddenError) {
+			return { success: false, error: "คุณไม่มีสิทธิ์ปฏิเสธรายการ" };
+		}
+		throw err;
+	}
 
-  const result = await rejectMovementService(
-    movementId,
-    reviewerId,
-    rejectReason,
-  );
-  if (result.success) {
-    revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
-  }
-  return result;
+	const result = await rejectMovementService(
+		movementId,
+		reviewerId,
+		rejectReason,
+	);
+	if (result.success) {
+		revalidatePath(ROUTES.DASHBOARD.STOCK.APPROVALS);
+	}
+	return result;
 }
