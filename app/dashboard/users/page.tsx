@@ -20,7 +20,7 @@ import { auth } from "@/lib/auth";
 export const metadata: Metadata = {
 	title: "User Management | StockMS",
 	description:
-		"จัดการผู้ใช้งานและสิทธิ์การเข้าถึงระบบ — create, edit, disable accounts and assign roles.",
+		"create, edit, disable accounts and assign roles.",
 };
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
