@@ -256,7 +256,7 @@ function SignInPageContent() {
 						</form>
 					</div>
 
-					<p className="text-center text-sm text-gray-600 mt-6">
+					{/* <p className="text-center text-sm text-gray-600 mt-6">
 						Don't have an account?{" "}
 						<Link
 							href={getAlternateAuthHref("/signup", redirectTo)}
@@ -264,7 +264,7 @@ function SignInPageContent() {
 						>
 							Sign up
 						</Link>
-					</p>
+					</p> */}
 				</div>
 			</div>
 		</div>

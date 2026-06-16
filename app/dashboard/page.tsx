@@ -8,6 +8,8 @@ import Inventory2OutlinedIcon from "@mui/icons-material/Inventory2Outlined";
 import ScheduleOutlinedIcon from "@mui/icons-material/ScheduleOutlined";
 import WarningAmberOutlinedIcon from "@mui/icons-material/WarningAmberOutlined";
 import { Alert, Box, Button, Card, Chip, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { ROUTES } from "@/constants/routes";
 import {
 	useExpiryReport,
 	useProductReport,
@@ -27,6 +29,7 @@ const panelSx = {
 
 export default function DashboardPage() {
 	const { data: session, isPending } = authClient.useSession();
+	const router = useRouter();
 
 	const defaultFilter = {
 		preset: "last30days" as const,
@@ -178,6 +181,7 @@ export default function DashboardPage() {
 						px: 3,
 						height: 44,
 					}}
+					onClick={() => router.push(ROUTES.DASHBOARD.STOCK.RECEIVE)}
 				>
 					New Transaction
 				</Button>
