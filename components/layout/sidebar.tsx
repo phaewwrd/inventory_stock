@@ -16,6 +16,7 @@ import { usePathname } from "next/navigation";
 import { ROUTES } from "@/constants/routes";
 import { useExpiryReport } from "@/features/reports/hooks";
 import { authClient } from "@/lib/auth-client";
+import { UserCard } from "./user-card";
 
 type NavItem = {
 	name: string;
@@ -125,7 +126,6 @@ function getNavSections(
 
 export function Sidebar() {
 	const pathname = usePathname();
-	const { data: session } = authClient.useSession();
 	const expiryQuery = useExpiryReport({
 		preset: "today",
 		customStart: null,
@@ -133,6 +133,7 @@ export function Sidebar() {
 	});
 
 	const criticalExpiryCount = expiryQuery.data?.summary.criticalItems;
+	const { data: session } = authClient.useSession();
 
 	const navSections = getNavSections(
 		session?.user?.authRole,
@@ -143,7 +144,6 @@ export function Sidebar() {
 		if (href === ROUTES.DASHBOARD.HOME) {
 			return pathname === href;
 		}
-
 		return pathname.startsWith(href);
 	};
 
@@ -188,15 +188,11 @@ export function Sidebar() {
 
 				<Box>
 					<Typography style={{ fontWeight: 700 }}>StockMS</Typography>
-
-					<Typography variant="caption" color="text.secondary">
-						Phase 1
-					</Typography>
 				</Box>
 			</Box>
 
 			{/* Navigation */}
-			<Box sx={{ p: 2, flex: 1 }}>
+			<Box sx={{ p: 2, flex: 1, overflowY: "auto" }}>
 				{navSections.map((section) => (
 					<Box key={section.label} sx={{ mb: 3 }}>
 						<Typography
@@ -221,9 +217,7 @@ export function Sidebar() {
 								<Link
 									key={item.href}
 									href={item.href}
-									style={{
-										textDecoration: "none",
-									}}
+									style={{ textDecoration: "none" }}
 								>
 									<Box
 										sx={{
@@ -235,30 +229,20 @@ export function Sidebar() {
 											alignItems: "center",
 											justifyContent: "space-between",
 											transition: "all .2s ease",
-
 											bgcolor: active ? "primary.50" : "transparent",
-
 											color: active ? "primary.main" : "text.secondary",
-
 											"&:hover": {
 												bgcolor: active ? "primary.50" : "action.hover",
 											},
 										}}
 									>
 										<Box
-											sx={{
-												display: "flex",
-												alignItems: "center",
-												gap: 1.5,
-											}}
+											sx={{ display: "flex", alignItems: "center", gap: 1.5 }}
 										>
 											{Icon}
-
 											<Typography
 												variant="body2"
-												style={{
-													fontWeight: active ? 600 : 500,
-												}}
+												style={{ fontWeight: active ? 600 : 500 }}
 											>
 												{item.name}
 											</Typography>
@@ -269,10 +253,7 @@ export function Sidebar() {
 												label={item.badge}
 												size="small"
 												color="error"
-												sx={{
-													height: 20,
-													fontSize: 11,
-												}}
+												sx={{ height: 20, fontSize: 11 }}
 											/>
 										)}
 									</Box>
@@ -282,6 +263,8 @@ export function Sidebar() {
 					</Box>
 				))}
 			</Box>
+
+			<UserCard />
 		</Box>
 	);
 }

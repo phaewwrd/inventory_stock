@@ -1,11 +1,12 @@
 "use client";
 
+import ContentCutOutlinedIcon from "@mui/icons-material/ContentCutOutlined";
 import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
 import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import RemoveIcon from "@mui/icons-material/Remove";
-import VerticalAlignBottomIcon from "@mui/icons-material/VerticalAlignBottom";
-import { Stack, Tooltip, Typography } from "@mui/material";
+import VisibilityOutlinedIcon from "@mui/icons-material/VisibilityOutlined";
+import { ListItemIcon, ListItemText, Stack, Tooltip, Typography } from "@mui/material";
 import Button from "@mui/material/Button";
 import Dialog from "@mui/material/Dialog";
 import DialogActions from "@mui/material/DialogActions";
@@ -13,6 +14,9 @@ import DialogContent from "@mui/material/DialogContent";
 import DialogContentText from "@mui/material/DialogContentText";
 import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
+import Menu from "@mui/material/Menu";
+import MenuItem from "@mui/material/MenuItem";
+import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { ColumnDef } from "@/components/data-table";
@@ -47,6 +51,9 @@ function RowActions({
 	onView: (id: string) => void;
 	onDelete: (product: ProductListItem) => void;
 }) {
+	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
+	const close = () => setAnchorEl(null);
+
 	return (
 		<Stack
 			direction="row"
@@ -59,7 +66,7 @@ function RowActions({
 					size="small"
 					href={`${ROUTES.DASHBOARD.STOCK.RECEIVE}?productId=${product.id}`}
 				>
-					<VerticalAlignBottomIcon fontSize="small" />
+					<DownloadOutlinedIcon fontSize="small" />
 				</IconButton>
 			</Tooltip>
 			<Tooltip title="Cut stock">
@@ -67,31 +74,50 @@ function RowActions({
 					size="small"
 					href={`${ROUTES.DASHBOARD.STOCK.CUT}?productId=${product.id}`}
 				>
-					<RemoveIcon fontSize="small" />
+					<ContentCutOutlinedIcon fontSize="small" />
 				</IconButton>
 			</Tooltip>
-			<Tooltip title="Edit">
-				<IconButton
-					size="small"
-					href={`${ROUTES.DASHBOARD.PRODUCTS}/${product.id}/edit`}
-				>
-					<EditOutlinedIcon fontSize="small" />
-				</IconButton>
-			</Tooltip>
-			<Tooltip title="Delete">
-				<IconButton
-					size="small"
-					color="error"
-					onClick={() => onDelete(product)}
-				>
-					<DeleteOutlinedIcon fontSize="small" />
-				</IconButton>
-			</Tooltip>
-			<Tooltip title="View detail">
-				<IconButton size="small" onClick={() => onView(product.id)}>
+			<Tooltip title="More">
+				<IconButton size="small" onClick={(e) => setAnchorEl(e.currentTarget)}>
 					<MoreHorizIcon fontSize="small" />
 				</IconButton>
 			</Tooltip>
+
+			<Menu anchorEl={anchorEl} open={anchorEl !== null} onClose={close}>
+				<MenuItem
+					onClick={() => {
+						close();
+						onView(product.id);
+					}}
+				>
+					<ListItemIcon>
+						<VisibilityOutlinedIcon fontSize="small" />
+					</ListItemIcon>
+					<ListItemText>View detail</ListItemText>
+				</MenuItem>
+				<MenuItem
+					component={Link}
+					href={`${ROUTES.DASHBOARD.PRODUCTS}/${product.id}/edit`}
+					onClick={close}
+				>
+					<ListItemIcon>
+						<EditOutlinedIcon fontSize="small" />
+					</ListItemIcon>
+					<ListItemText>Edit</ListItemText>
+				</MenuItem>
+				<MenuItem
+					onClick={() => {
+						close();
+						onDelete(product);
+					}}
+					sx={{ color: "error.main" }}
+				>
+					<ListItemIcon>
+						<DeleteOutlinedIcon fontSize="small" color="error" />
+					</ListItemIcon>
+					<ListItemText>Delete</ListItemText>
+				</MenuItem>
+			</Menu>
 		</Stack>
 	);
 }
