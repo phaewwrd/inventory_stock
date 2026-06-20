@@ -1,15 +1,25 @@
 "use client";
 
+import DeleteOutlinedIcon from "@mui/icons-material/DeleteOutlined";
+import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import RemoveIcon from "@mui/icons-material/Remove";
 import VerticalAlignBottomIcon from "@mui/icons-material/VerticalAlignBottom";
 import { Stack, Tooltip, Typography } from "@mui/material";
+import Button from "@mui/material/Button";
+import Dialog from "@mui/material/Dialog";
+import DialogActions from "@mui/material/DialogActions";
+import DialogContent from "@mui/material/DialogContent";
+import DialogContentText from "@mui/material/DialogContentText";
+import DialogTitle from "@mui/material/DialogTitle";
 import IconButton from "@mui/material/IconButton";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import type { ColumnDef } from "@/components/data-table";
 import { DataTable } from "@/components/data-table";
+import { useSnackbar } from "@/components/feedback/snackbar-provider";
 import { ROUTES } from "@/constants/routes";
+import { deleteProductAction } from "@/features/products/actions";
 import type {
 	ProductListItem,
 	ProductSortField,
@@ -29,11 +39,13 @@ interface ProductsTableProps {
 // ─── Cell renderers (kept outside the component so they're stable) ──────────
 
 function RowActions({
-	productId,
+	product,
 	onView,
+	onDelete,
 }: {
-	productId: string;
+	product: ProductListItem;
 	onView: (id: string) => void;
+	onDelete: (product: ProductListItem) => void;
 }) {
 	return (
 		<Stack
@@ -45,7 +57,7 @@ function RowActions({
 			<Tooltip title="Receive stock">
 				<IconButton
 					size="small"
-					href={`${ROUTES.DASHBOARD.STOCK.RECEIVE}?productId=${productId}`}
+					href={`${ROUTES.DASHBOARD.STOCK.RECEIVE}?productId=${product.id}`}
 				>
 					<VerticalAlignBottomIcon fontSize="small" />
 				</IconButton>
@@ -53,13 +65,30 @@ function RowActions({
 			<Tooltip title="Cut stock">
 				<IconButton
 					size="small"
-					href={`${ROUTES.DASHBOARD.STOCK.CUT}?productId=${productId}`}
+					href={`${ROUTES.DASHBOARD.STOCK.CUT}?productId=${product.id}`}
 				>
 					<RemoveIcon fontSize="small" />
 				</IconButton>
 			</Tooltip>
+			<Tooltip title="Edit">
+				<IconButton
+					size="small"
+					href={`${ROUTES.DASHBOARD.PRODUCTS}/${product.id}/edit`}
+				>
+					<EditOutlinedIcon fontSize="small" />
+				</IconButton>
+			</Tooltip>
+			<Tooltip title="Delete">
+				<IconButton
+					size="small"
+					color="error"
+					onClick={() => onDelete(product)}
+				>
+					<DeleteOutlinedIcon fontSize="small" />
+				</IconButton>
+			</Tooltip>
 			<Tooltip title="View detail">
-				<IconButton size="small" onClick={() => onView(productId)}>
+				<IconButton size="small" onClick={() => onView(product.id)}>
 					<MoreHorizIcon fontSize="small" />
 				</IconButton>
 			</Tooltip>
@@ -73,7 +102,31 @@ export function ProductsTable({ items, sort, dir }: ProductsTableProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
+	const { show } = useSnackbar();
 	const [openProductId, setOpenProductId] = useState<string | null>(null);
+	const [deleteTarget, setDeleteTarget] = useState<ProductListItem | null>(
+		null,
+	);
+	const [deleting, setDeleting] = useState(false);
+
+	async function confirmDelete() {
+		if (!deleteTarget) return;
+		setDeleting(true);
+		try {
+			const result = await deleteProductAction(deleteTarget.id);
+			if (result.success) {
+				show("success", `ลบ ${deleteTarget.name} แล้ว`);
+				router.refresh();
+			} else {
+				show("error", result.error);
+			}
+		} catch {
+			show("error", "เกิดข้อผิดพลาด กรุณาลองใหม่อีกครั้ง");
+		} finally {
+			setDeleteTarget(null);
+			setDeleting(false);
+		}
+	}
 
 	function handleSortChange(field: ProductSortField) {
 		const params = new URLSearchParams(searchParams.toString());
@@ -149,7 +202,11 @@ export function ProductsTable({ items, sort, dir }: ProductsTableProps) {
 				label: "Actions",
 				align: "center",
 				render: (row) => (
-					<RowActions productId={row.id} onView={setOpenProductId} />
+					<RowActions
+						product={row}
+						onView={setOpenProductId}
+						onDelete={setDeleteTarget}
+					/>
 				),
 			},
 		],
@@ -174,6 +231,24 @@ export function ProductsTable({ items, sort, dir }: ProductsTableProps) {
 				open={openProductId !== null}
 				onClose={() => setOpenProductId(null)}
 			/>
+
+			<Dialog open={deleteTarget !== null} onClose={() => setDeleteTarget(null)}>
+				<DialogTitle>ยืนยันการลบ</DialogTitle>
+				<DialogContent>
+					<DialogContentText>
+						ลบสินค้า <strong>{deleteTarget?.name}</strong> ({deleteTarget?.sku})?
+						หากสินค้ามีประวัติ stock จะลบไม่ได้ — ให้ปิดการใช้งานแทน
+					</DialogContentText>
+				</DialogContent>
+				<DialogActions>
+					<Button onClick={() => setDeleteTarget(null)} disabled={deleting}>
+						ยกเลิก
+					</Button>
+					<Button color="error" onClick={confirmDelete} disabled={deleting}>
+						{deleting ? "กำลังลบ…" : "ลบ"}
+					</Button>
+				</DialogActions>
+			</Dialog>
 		</>
 	);
 }

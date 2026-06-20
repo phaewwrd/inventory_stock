@@ -101,16 +101,6 @@ export function Navbar() {
 							{formattedPageName}
 						</Typography>
 					</Breadcrumbs>
-
-					<Typography
-						variant="h6"
-						sx={{
-							mt: 0.5,
-							fontWeight: 700,
-						}}
-					>
-						{formattedPageName}
-					</Typography>
 				</Box>
 
 				{/* Right */}

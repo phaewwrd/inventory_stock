@@ -127,6 +127,7 @@ export interface ProductRecord {
 	name: string;
 	unit: string;
 	size: string | null;
+	categoryId: string;
 	categoryName: string | null;
 	minimumStock: number;
 	latestCost: string | null;

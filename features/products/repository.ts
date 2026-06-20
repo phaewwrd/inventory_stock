@@ -259,6 +259,7 @@ export async function findProductById(
 			name: products.name,
 			unit: products.unit,
 			size: products.size,
+			categoryId: products.categoryId,
 			categoryName: categories.productname,
 			minimumStock: products.minimumStock,
 			latestCost: products.latestCost,
@@ -383,6 +384,19 @@ export async function insertProduct(row: InsertProductRow): Promise<string> {
 	const id = randomUUID();
 	await db.insert(products).values({ id, ...row });
 	return id;
+}
+
+/** Overwrites a product's master fields. */
+export async function updateProduct(
+	id: string,
+	row: InsertProductRow,
+): Promise<void> {
+	await db.update(products).set(row).where(eq(products.id, id));
+}
+
+/** Hard-deletes a product. Throws FK violation (23503) if it has lots/movements. */
+export async function deleteProduct(id: string): Promise<void> {
+	await db.delete(products).where(eq(products.id, id));
 }
 
 // ─── Status helper exposed for service consumers ────────────────────────────

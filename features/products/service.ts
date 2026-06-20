@@ -2,6 +2,7 @@ import "server-only";
 
 import {
 	computeStatus,
+	deleteProduct,
 	findAllCategories,
 	findLotsByProductId,
 	findProductById,
@@ -9,8 +10,10 @@ import {
 	generateNextSku,
 	insertProduct,
 	listProducts,
+	updateProduct,
 } from "./repository";
 import type {
+	ActionResult,
 	CategoryOption,
 	CreateProductInput,
 	CreateProductResult,
@@ -18,11 +21,13 @@ import type {
 	ProductFormField,
 	ProductListParams,
 	ProductListResult,
+	ProductRecord,
 } from "./types";
 
 const RECENT_MOVEMENTS_LIMIT = 10;
 const DUPLICATE_SKU_ERROR = "SKU นี้มีอยู่แล้ว กรุณาใช้รหัสอื่น";
 const POSTGRES_UNIQUE_VIOLATION = "23505";
+const POSTGRES_FK_VIOLATION = "23503";
 
 // ─── List ─────────────────────────────────────────────────────────────────────
 
@@ -131,6 +136,80 @@ export async function createProductService(
 	}
 
 	return { success: false, error: DUPLICATE_SKU_ERROR, field: "sku" };
+}
+
+// ─── Update ───────────────────────────────────────────────────────────────────
+
+export async function getProductRecordService(
+	id: string,
+): Promise<ProductRecord | null> {
+	return findProductById(id);
+}
+
+export async function updateProductService(
+	id: string,
+	input: CreateProductInput,
+): Promise<CreateProductResult> {
+	const violation = validateCreateProductInput(input);
+	if (violation) {
+		return { success: false, error: violation.error, field: violation.field };
+	}
+	const sku = input.sku.trim();
+	if (!sku) {
+		return { success: false, error: "กรุณากรอก SKU", field: "sku" };
+	}
+
+	try {
+		await updateProduct(id, {
+			sku,
+			categoryId: input.categoryId,
+			name: input.name.trim(),
+			unit: input.unit.trim(),
+			size: input.size,
+			latestCost: input.latestCost,
+			minimumStock: input.minimumStock,
+			isActive: input.isActive,
+			note: input.note,
+		});
+	} catch (err) {
+		if (isUniqueViolation(err)) {
+			return { success: false, error: DUPLICATE_SKU_ERROR, field: "sku" };
+		}
+		return {
+			success: false,
+			error: err instanceof Error ? err.message : "อัปเดตสินค้าไม่สำเร็จ",
+		};
+	}
+
+	const updated = await findProductById(id);
+	if (!updated) return { success: false, error: "ไม่พบสินค้า" };
+	return { success: true, data: updated };
+}
+
+// ─── Delete ───────────────────────────────────────────────────────────────────
+
+export async function deleteProductService(id: string): Promise<ActionResult> {
+	try {
+		await deleteProduct(id);
+		return { success: true, data: undefined };
+	} catch (err) {
+		// FK violation = product still referenced by lots/movements.
+		if (
+			typeof err === "object" &&
+			err !== null &&
+			"code" in err &&
+			(err as { code?: string }).code === POSTGRES_FK_VIOLATION
+		) {
+			return {
+				success: false,
+				error: "ลบไม่ได้: สินค้ามีประวัติ stock อยู่ ให้ปิดการใช้งานแทน",
+			};
+		}
+		return {
+			success: false,
+			error: err instanceof Error ? err.message : "ลบสินค้าไม่สำเร็จ",
+		};
+	}
 }
 
 // ─── Detail ───────────────────────────────────────────────────────────────────
