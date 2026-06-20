@@ -14,6 +14,14 @@ export const auth = betterAuth({
 	emailAndPassword: {
 		enabled: true,
 	},
+	session: {
+		// Read session from a signed cookie instead of hitting the DB on every
+		// nav (middleware + page). Role/disabled changes lag up to maxAge.
+		cookieCache: {
+			enabled: true,
+			maxAge: 5 * 60,
+		},
+	},
 	user: {
 		additionalFields: {
 			role: {
@@ -37,5 +45,6 @@ export const auth = betterAuth({
 			sendVerificationEmail: async () => {},
 		},
 	},
-	plugins: [nextCookies(), admin()],
+	// nextCookies must be LAST so it forwards Set-Cookie from earlier plugins' hooks.
+	plugins: [admin(), nextCookies()],
 });

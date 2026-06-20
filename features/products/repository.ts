@@ -236,6 +236,15 @@ export async function listProducts(
 			}));
 		},
 		countQuery: async () => {
+			// The aggregate joins are only needed when a status filter references
+			// them; for "all" (and search-only), count straight off products.
+			if (statusCondition === undefined) {
+				const [{ value }] = await db
+					.select({ value: count() })
+					.from(products)
+					.where(searchCondition);
+				return value;
+			}
 			const [{ value }] = await db
 				.select({ value: count() })
 				.from(products)

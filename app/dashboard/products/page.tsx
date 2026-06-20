@@ -1,5 +1,4 @@
 import AddIcon from "@mui/icons-material/Add";
-import DownloadIcon from "@mui/icons-material/Download";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
 import Card from "@mui/material/Card";
@@ -92,15 +91,6 @@ export default async function ProductsPage({
 							alignItems: "center",
 						}}
 					>
-						<Button
-							variant="outlined"
-							color="inherit"
-							startIcon={<DownloadIcon />}
-							disabled
-						>
-							Export
-						</Button>
-
 						{canAddProduct && (
 							<Button
 								variant="contained"

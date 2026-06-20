@@ -1,6 +1,7 @@
 import {
 	boolean,
 	date,
+	index,
 	integer,
 	numeric,
 	pgTable,
@@ -43,7 +44,7 @@ export const products = pgTable("products", {
 	createdAt: timestamp("created_at").defaultNow().notNull(),
 
 	updatedAt: timestamp("updated_at").defaultNow().notNull(),
-});
+}, (t) => [index("products_name_idx").on(t.name)]);
 
 export const productLots = pgTable("product_lots", {
 	id: text("id").primaryKey(),
@@ -68,4 +69,8 @@ export const productLots = pgTable("product_lots", {
 	}),
 
 	createdAt: timestamp("created_at").defaultNow().notNull(),
-});
+}, (t) => [
+	// Serves balance GROUP BY (product_id prefix), FEFO DISTINCT ON ordering,
+	// and the product_id FK join in the products list query.
+	index("product_lots_product_expiry_idx").on(t.productId, t.expiryDate),
+]);
