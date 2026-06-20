@@ -21,18 +21,17 @@ import { useState } from "react";
 
 import { useSnackbar } from "@/components/feedback/snackbar-provider";
 import { ROUTES } from "@/constants/routes";
-import { createProductAction } from "@/features/products/actions";
+import {
+	createProductAction,
+	updateProductAction,
+} from "@/features/products/actions";
 import type {
 	CategoryOption,
 	CreateProductInput,
 	ProductFormField,
 } from "@/features/products/types";
 
-interface ProductFormProps {
-	categories: CategoryOption[];
-}
-
-interface FormState {
+export interface ProductFormState {
 	sku: string;
 	name: string;
 	categoryId: string;
@@ -42,6 +41,14 @@ interface FormState {
 	latestCost: string;
 	note: string;
 	isActive: boolean;
+}
+
+type FormState = ProductFormState;
+
+interface ProductFormProps {
+	categories: CategoryOption[];
+	productId?: string;
+	initial?: FormState;
 }
 
 type FieldErrors = Partial<Record<ProductFormField, string>>;
@@ -98,11 +105,16 @@ function toCreateInput(state: FormState): CreateProductInput {
 	};
 }
 
-export function ProductForm({ categories }: ProductFormProps) {
+export function ProductForm({
+	categories,
+	productId,
+	initial,
+}: ProductFormProps) {
 	const router = useRouter();
 	const { show } = useSnackbar();
+	const isEdit = Boolean(productId);
 
-	const [state, setState] = useState<FormState>(INITIAL_STATE);
+	const [state, setState] = useState<FormState>(initial ?? INITIAL_STATE);
 	const [errors, setErrors] = useState<FieldErrors>({});
 	const [dirty, setDirty] = useState(false);
 	const [submitting, setSubmitting] = useState(false);
@@ -131,9 +143,18 @@ export function ProductForm({ categories }: ProductFormProps) {
 
 		setSubmitting(true);
 		try {
-			const result = await createProductAction(toCreateInput(state));
+			const input = toCreateInput(state);
+			const result =
+				isEdit && productId
+					? await updateProductAction(productId, input)
+					: await createProductAction(input);
 			if (result.success) {
-				show("success", `สร้างสินค้า ${result.data.sku} แล้ว`);
+				show(
+					"success",
+					isEdit
+						? `อัปเดตสินค้า ${result.data.sku} แล้ว`
+						: `สร้างสินค้า ${result.data.sku} แล้ว`,
+				);
 				router.push(ROUTES.DASHBOARD.PRODUCTS);
 				router.refresh();
 				return;
@@ -310,7 +331,11 @@ export function ProductForm({ categories }: ProductFormProps) {
 					Cancel
 				</Button>
 				<Button type="submit" variant="contained" disabled={submitting}>
-					{submitting ? "Saving…" : "Save product"}
+					{submitting
+						? "Saving…"
+						: isEdit
+							? "Save changes"
+							: "Save product"}
 				</Button>
 			</Stack>
 
