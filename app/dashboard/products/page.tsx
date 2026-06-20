@@ -1,3 +1,5 @@
+import { Suspense } from "react";
+
 import AddIcon from "@mui/icons-material/Add";
 import Box from "@mui/material/Box";
 import Button from "@mui/material/Button";
@@ -10,6 +12,7 @@ import { redirect } from "next/navigation";
 import { DataTablePagination } from "@/components/data-table";
 import { HeaderPage } from "@/components/header-page";
 import { ProductsTable } from "@/components/products/products-table";
+import { ProductsTableSkeleton } from "@/components/products/products-table-skeleton";
 import { ProductsToolbar } from "@/components/products/products-toolbar";
 import { ROUTES } from "@/constants/routes";
 import { getProductListService } from "@/features/products/service";
@@ -69,18 +72,19 @@ export default async function ProductsPage({
 		redirect(ROUTES.LOGIN);
 	}
 
-	const canAddProduct =
+	const canManage =
 		session.user.authRole === "OWNER" ||
 		session.user.authRole === "STOCK_MANAGER";
 
 	const params = parseProductListParams(await searchParams);
-	const { items, total, page, limit } = await getProductListService(params);
+	// Re-suspends the table (showing the skeleton) whenever any filter changes.
+	const suspenseKey = `${params.q}|${params.status}|${params.sort}|${params.dir}|${params.page}|${params.limit}`;
 
 	return (
 		<main className="flex-1 overflow-y-auto px-8 py-7">
 			<HeaderPage
 				title="Products"
-				description={`${total.toLocaleString()} items in inventory`}
+				description="Browse, search, and inspect inventory products"
 				showDashboardBtn={false}
 				custombtn={
 					<Box
@@ -91,7 +95,7 @@ export default async function ProductsPage({
 							alignItems: "center",
 						}}
 					>
-						{canAddProduct && (
+						{canManage && (
 							<Button
 								variant="contained"
 								color="primary"
@@ -107,12 +111,33 @@ export default async function ProductsPage({
 
 			<ProductsToolbar q={params.q} status={params.status} />
 
-			<Card>
-				<CardContent sx={{ p: 0 }}>
-					<ProductsTable items={items} sort={params.sort} dir={params.dir} />
-					<DataTablePagination page={page} limit={limit} total={total} />
-				</CardContent>
-			</Card>
+			<Suspense key={suspenseKey} fallback={<ProductsTableSkeleton />}>
+				<ProductsTableSection params={params} canManage={canManage} />
+			</Suspense>
 		</main>
+	);
+}
+
+async function ProductsTableSection({
+	params,
+	canManage,
+}: {
+	params: ProductListParams;
+	canManage: boolean;
+}) {
+	const { items, total, page, limit } = await getProductListService(params);
+
+	return (
+		<Card>
+			<CardContent sx={{ p: 0 }}>
+				<ProductsTable
+					items={items}
+					sort={params.sort}
+					dir={params.dir}
+					canManage={canManage}
+				/>
+				<DataTablePagination page={page} limit={limit} total={total} />
+			</CardContent>
+		</Card>
 	);
 }

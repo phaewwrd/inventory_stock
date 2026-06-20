@@ -38,6 +38,7 @@ interface ProductsTableProps {
 	items: Array<ProductListItem>;
 	sort: ProductSortField;
 	dir: SortDirection;
+	canManage: boolean;
 }
 
 // ─── Cell renderers (kept outside the component so they're stable) ──────────
@@ -46,10 +47,12 @@ function RowActions({
 	product,
 	onView,
 	onDelete,
+	canManage,
 }: {
 	product: ProductListItem;
 	onView: (id: string) => void;
 	onDelete: (product: ProductListItem) => void;
+	canManage: boolean;
 }) {
 	const [anchorEl, setAnchorEl] = useState<HTMLElement | null>(null);
 	const close = () => setAnchorEl(null);
@@ -95,28 +98,32 @@ function RowActions({
 					</ListItemIcon>
 					<ListItemText>View detail</ListItemText>
 				</MenuItem>
-				<MenuItem
-					component={Link}
-					href={`${ROUTES.DASHBOARD.PRODUCTS}/${product.id}/edit`}
-					onClick={close}
-				>
-					<ListItemIcon>
-						<EditOutlinedIcon fontSize="small" />
-					</ListItemIcon>
-					<ListItemText>Edit</ListItemText>
-				</MenuItem>
-				<MenuItem
-					onClick={() => {
-						close();
-						onDelete(product);
-					}}
-					sx={{ color: "error.main" }}
-				>
-					<ListItemIcon>
-						<DeleteOutlinedIcon fontSize="small" color="error" />
-					</ListItemIcon>
-					<ListItemText>Delete</ListItemText>
-				</MenuItem>
+				{canManage && (
+					<MenuItem
+						component={Link}
+						href={`${ROUTES.DASHBOARD.PRODUCTS}/${product.id}/edit`}
+						onClick={close}
+					>
+						<ListItemIcon>
+							<EditOutlinedIcon fontSize="small" />
+						</ListItemIcon>
+						<ListItemText>Edit</ListItemText>
+					</MenuItem>
+				)}
+				{canManage && (
+					<MenuItem
+						onClick={() => {
+							close();
+							onDelete(product);
+						}}
+						sx={{ color: "error.main" }}
+					>
+						<ListItemIcon>
+							<DeleteOutlinedIcon fontSize="small" color="error" />
+						</ListItemIcon>
+						<ListItemText>Delete</ListItemText>
+					</MenuItem>
+				)}
 			</Menu>
 		</Stack>
 	);
@@ -124,7 +131,12 @@ function RowActions({
 
 // ─── Main ────────────────────────────────────────────────────────────────────
 
-export function ProductsTable({ items, sort, dir }: ProductsTableProps) {
+export function ProductsTable({
+	items,
+	sort,
+	dir,
+	canManage,
+}: ProductsTableProps) {
 	const router = useRouter();
 	const pathname = usePathname();
 	const searchParams = useSearchParams();
@@ -232,11 +244,12 @@ export function ProductsTable({ items, sort, dir }: ProductsTableProps) {
 						product={row}
 						onView={setOpenProductId}
 						onDelete={setDeleteTarget}
+						canManage={canManage}
 					/>
 				),
 			},
 		],
-		[],
+		[canManage],
 	);
 
 	return (
